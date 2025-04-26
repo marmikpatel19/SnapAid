@@ -2064,7 +2064,7 @@
   Enabled: true
   ScriptAsset: !<reference> 1cde895a-a2ed-4eae-ab8b-5c5117ec7eb7
   ScriptInputsDefault:
-    LLM_analyse: true
+    {}
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -2074,7 +2074,7 @@
       image: !<reference.Image> 9a041840-fea4-4eba-a83e-6811ca3aacbd
       interactable: !<MappingBased.Interactable> 141999ab-6407-4f7e-a341-68818c100bc4
       ttsComponent: !<MappingBased.TextToSpeechOpenAI> c5b4401b-2516-44da-bb81-68e63b8d7e65
-      LLM_analyse: !<reference.Text> 00000000-0000-0000-0000-000000000000
+      LLM_analyse: !<reference.Text> daa5c609-8153-4abd-82cb-3ef0c1b87233
   ScriptTypes:
     "":
       {}
