@@ -10,7 +10,6 @@ export class VisionOpenAI extends BaseScriptComponent {
   @input image: Image;
   @input interactable: Interactable;
   @input ttsComponent: TextToSpeechOpenAI;
-  @input LLM_analyse: Text;
 
   apiKey: string = "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";
 
@@ -50,12 +49,7 @@ export class VisionOpenAI extends BaseScriptComponent {
     try {
       this.isProcessing = true;
       
-      // Set a more detailed analysis text
-      if (this.LLM_analyse) {
-        const currentTime = new Date().toLocaleTimeString();
-        this.LLM_analyse.text = `🔄 Processing (${currentTime})...\n\nSteps:\n1. Encoding image ⏳\n2. Sending to AI model ⏳\n3. Waiting for response ⏳\n\nPlease wait while the AI analyzes your request...`;
-      }
-
+    
       // Access the texture from the image component
       const texture = this.image.mainPass.baseTex;
       if (!texture) {
@@ -105,17 +99,6 @@ export class VisionOpenAI extends BaseScriptComponent {
       if (response.status === 200) {
         let responseData = await response.json();
         this.textOutput.text = responseData.choices[0].message.content;
-        
-        // Show the full model response in the analysis text field
-        if (this.LLM_analyse) {
-          // Extract useful analysis information
-          const fullResponse = responseData.choices[0].message.content;
-          const modelUsed = requestPayload.model;
-          const promptTokenEstimate = JSON.stringify(requestPayload).length / 4;
-          
-          this.LLM_analyse.text = `Analysis complete ✓\n\nModel: ${modelUsed}\nEstimated tokens: ~${promptTokenEstimate}\n\nFull response:\n${fullResponse}`;
-        }
-        
         print(responseData.choices[0].message.content);
 
         // Call TTS to generate and play speech from the response
@@ -126,15 +109,9 @@ export class VisionOpenAI extends BaseScriptComponent {
         }
       } else {
         print("Failure: response not successful");
-        if (this.LLM_analyse) {
-          this.LLM_analyse.text = `❌ Error (HTTP ${response.status})\n\nThe API request failed. Please try again or check your connection.`;
-        }
       }
     } catch (error) {
       print("Error: " + error);
-      if (this.LLM_analyse) {
-        this.LLM_analyse.text = `❌ Error\n\nSomething went wrong: ${error}\n\nPlease try again or check your settings.`;
-      }
     } finally {
       this.isProcessing = false;
     }
