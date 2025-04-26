@@ -73,7 +73,7 @@ export default abstract class BaseWorldCameraProvider
   screenSpaceToWorldSpace(x: number, y: number, absoluteDepth: number): vec3 {
     return this.cameraComponent.screenSpaceToWorldSpace(
       new vec2(x, y),
-      absoluteDepth,
+      absoluteDepth
     )
   }
 
@@ -98,7 +98,7 @@ export default abstract class BaseWorldCameraProvider
     const screenSpace = this.worldSpaceToScreenSpace(
       worldPosition.x,
       worldPosition.y,
-      worldPosition.z,
+      worldPosition.z
     )
 
     return (

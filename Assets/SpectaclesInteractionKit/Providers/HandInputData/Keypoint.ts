@@ -1,5 +1,5 @@
-import {validate} from "../../Utils/validate"
 import WorldCameraFinderProvider from "../CameraProvider/WorldCameraFinderProvider"
+import {validate} from "../../Utils/validate"
 
 const TAG = "Keypoint"
 

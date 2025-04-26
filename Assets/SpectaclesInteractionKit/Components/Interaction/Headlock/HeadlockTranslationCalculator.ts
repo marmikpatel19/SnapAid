@@ -109,7 +109,7 @@ export default class HeadlockTranslationCalculator {
         const interpolatedXZ = vec3.lerp(
           centerXZ,
           cameraPositionXZ,
-          this.xzEasing * timeRatio,
+          this.xzEasing * timeRatio
         )
         offset = interpolatedXZ.sub(centerXZ)
       } else {
@@ -129,7 +129,7 @@ export default class HeadlockTranslationCalculator {
         const interpolatedY = MathUtils.lerp(
           centerY,
           cameraPositionY,
-          this.yEasing * timeRatio,
+          this.yEasing * timeRatio
         )
         offset = interpolatedY - centerY
       } else {

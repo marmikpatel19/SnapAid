@@ -1,3 +1,9 @@
+import {Interactable} from "../../Components/Interaction/Interactable/Interactable"
+import {InteractableHitInfo} from "../../Providers/TargetProvider/TargetProvider"
+import Event from "../../Utils/Event"
+import {validate} from "../../Utils/validate"
+import {InteractionManager} from "../InteractionManager/InteractionManager"
+import {DragProvider} from "./DragProvider"
 import {
   DragType,
   Interactor,
@@ -5,13 +11,6 @@ import {
   InteractorTriggerType,
   TargetingMode,
 } from "./Interactor"
-
-import {Interactable} from "../../Components/Interaction/Interactable/Interactable"
-import {InteractableHitInfo} from "../../Providers/TargetProvider/TargetProvider"
-import Event from "../../Utils/Event"
-import {validate} from "../../Utils/validate"
-import {InteractionManager} from "../InteractionManager/InteractionManager"
-import {DragProvider} from "./DragProvider"
 
 const TAG = "BaseInteractor"
 
@@ -88,31 +87,6 @@ export default abstract class BaseInteractor
   onCurrentInteractableChanged =
     this.onCurrentInteractableChangedEvent.publicApi()
 
-  private onTriggerStartEvent = new Event<Interactable | null>()
-  private onTriggerUpdateEvent = new Event<Interactable | null>()
-  private onTriggerEndEvent = new Event<Interactable | null>()
-  private onTriggerCanceledEvent = new Event<Interactable | null>()
-
-  /**
-   * Called whenever the Interactor enters the triggered state (regardless of if there is a target or not).
-   */
-  onTriggerStart = this.onTriggerStartEvent.publicApi()
-
-  /**
-   * Called whenever the Interactor remains in the triggered state (regardless of if there is a target or not).
-   */
-  onTriggerUpdate = this.onTriggerUpdateEvent.publicApi()
-
-  /**
-   * Called whenever the Interactor exits the triggered state (regardless of if there is a target or not).
-   */
-  onTriggerEnd = this.onTriggerEndEvent.publicApi()
-
-  /**
-   * Called whenever the Interactor is lost and was in a triggered state (regardless of if there is a target or not).
-   */
-  onTriggerCanceled = this.onTriggerCanceledEvent.publicApi()
-
   /**
    * Returns the previous trigger value
    */
@@ -137,10 +111,9 @@ export default abstract class BaseInteractor
     super()
 
     this.interactionManager.registerInteractor(this)
-    this.createEvent("OnDestroyEvent").bind(() => this.release())
   }
 
-  private release(): void {
+  release(): void {
     this.interactionManager.deregisterInteractor(this)
   }
 
@@ -288,12 +261,12 @@ export default abstract class BaseInteractor
     if ((this.currentTrigger & InteractorTriggerType.Select) !== 0) {
       this.currentDragVector = this.dragProvider.getDragVector(
         this.getDragPoint(),
-        this.currentInteractable?.enableInstantDrag ?? null,
+        this.currentInteractable?.enableInstantDrag ?? null
       )
 
       this.planecastDragProvider.getDragVector(
         this.planecastPoint,
-        this.currentInteractable?.enableInstantDrag ?? null,
+        this.currentInteractable?.enableInstantDrag ?? null
       )
     } else {
       this.currentDragVector = null
@@ -337,7 +310,7 @@ export default abstract class BaseInteractor
    * @returns the intersection point of the indirect raycast and plane
    */
   public raycastPlaneIntersection(
-    interactable: Interactable | null,
+    interactable: Interactable | null
   ): vec3 | null {
     const origin = this.startPoint
     const direction = this.direction
@@ -359,7 +332,11 @@ export default abstract class BaseInteractor
 
     const parametricValue = originDotProduct / directionDotProduct
 
-    return origin.add(direction.uniformScale(parametricValue))
+    if (parametricValue >= 0) {
+      return origin.add(direction.uniformScale(parametricValue))
+    } else {
+      return null
+    }
   }
 
   /**
@@ -368,7 +345,7 @@ export default abstract class BaseInteractor
    * @returns the direct collider's position projected onto the plane
    */
   public colliderPlaneIntersection(
-    interactable: Interactable | null,
+    interactable: Interactable | null
   ): vec3 | null {
     const origin = this.startPoint
 
@@ -398,31 +375,6 @@ export default abstract class BaseInteractor
   currentInteractableChanged = (): void => {
     if (this.currentInteractable !== this.previousInteractable) {
       this.onCurrentInteractableChangedEvent.invoke(this.currentInteractable)
-    }
-  }
-
-  /**
-   * Process the new currentTrigger and compare to previousTrigger to see what event to propagate.
-   */
-  protected processTriggerEvents() {
-    if (!this.isActive()) {
-      if ((InteractorTriggerType.Select & this.previousTrigger) !== 0) {
-        this.onTriggerCanceledEvent.invoke(this.currentInteractable)
-      }
-    } else {
-      if (
-        this.previousTrigger === InteractorTriggerType.None &&
-        (InteractorTriggerType.Select & this.currentTrigger) !== 0
-      ) {
-        this.onTriggerStartEvent.invoke(this.currentInteractable)
-      } else if (
-        this.previousTrigger === this.currentTrigger &&
-        this.currentTrigger !== InteractorTriggerType.None
-      ) {
-        this.onTriggerUpdateEvent.invoke(this.currentInteractable)
-      } else if (this.previousTrigger !== InteractorTriggerType.None) {
-        this.onTriggerEndEvent.invoke(this.currentInteractable)
-      }
     }
   }
 }

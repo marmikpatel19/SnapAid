@@ -21,7 +21,7 @@ export class VisualBoundariesProvider extends SceneObjectBoundariesProvider {
         Number.MAX_VALUE,
         -Number.MAX_VALUE,
         Number.MAX_VALUE,
-        -Number.MAX_VALUE,
+        -Number.MAX_VALUE
       )
     }
 
@@ -40,7 +40,7 @@ export class VisualBoundariesProvider extends SceneObjectBoundariesProvider {
 
   private createNodeRectBoundaries(sceneObject: SceneObject): Rect {
     const screenTransform = sceneObject.getComponent(
-      "Component.ScreenTransform",
+      "Component.ScreenTransform"
     )
     if (!screenTransform) {
       throw new Error(`Missing ScreenTransform attached to ${sceneObject.name}`)
@@ -53,7 +53,7 @@ export class VisualBoundariesProvider extends SceneObjectBoundariesProvider {
         Number.MAX_VALUE,
         -Number.MAX_VALUE,
         Number.MAX_VALUE,
-        -Number.MAX_VALUE,
+        -Number.MAX_VALUE
       )
     }
 

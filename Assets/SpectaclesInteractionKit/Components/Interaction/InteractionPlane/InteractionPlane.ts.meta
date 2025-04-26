@@ -21,13 +21,12 @@
   VersionMajor: 0
   VersionMinor: 0
   VersionPatch: 0
-  ComponentUid: e67a7577-9712-40d3-bf43-f5a6dd4ea3c4
+  ComponentUid: af044c51-db29-496b-addf-75b5d6eff79d
   ExportUid: 00000000-0000-0000-0000-000000000000
   CurrentVisibility: Editable
   MaxVisibility: Editable
   ScriptInputsHidden:
     _behindDistance: false
-    _directZoneDistance: false
     _drawDebug: false
     _planeSize: false
     _proximityDistance: false
@@ -38,14 +37,12 @@
       _proximityDistance: !<float> 20.000000
       _drawDebug: false
       _behindDistance: !<float> 5.000000
-      _directZoneDistance: 7.500000
   ScriptTypes:
     -
       {}
   InputLines:
     - "// @input vec2 _planeSize = {10,10}"
     - // @input float _proximityDistance
-    - // @input float _directZoneDistance
     - // @input bool _drawDebug
     - // @input float _behindDistance
   DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000

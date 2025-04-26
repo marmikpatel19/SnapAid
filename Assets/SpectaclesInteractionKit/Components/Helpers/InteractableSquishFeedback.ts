@@ -1,6 +1,6 @@
+import {Interactable} from "../Interaction/Interactable/Interactable"
 import {InteractorEvent} from "../../Core/Interactor/InteractorEvent"
 import {validate} from "../../Utils/validate"
-import {Interactable} from "../Interaction/Interactable/Interactable"
 
 /**
  * This class provides visual feedback by squishing a specified SceneObject when it is hovered or pinched. It allows customization of the squish amount along the x-axis and y-axis.

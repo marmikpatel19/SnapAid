@@ -1,15 +1,4 @@
-import {
-  Interactor,
-  InteractorInputType,
-} from "../../../Core/Interactor/Interactor"
-import LineRenderer, {
-  LineViewConfig,
-} from "../../../Utils/views/LineRenderer/LineRenderer"
-import {
-  CircleVisual,
-  CircleVisualConfig,
-  CircleVisualMaterialParameters,
-} from "./CircleVisual"
+import {CircleVisual, CircleVisualConfig} from "./CircleVisual"
 import {
   CursorData,
   CursorState,
@@ -17,12 +6,19 @@ import {
   CursorViewState,
   ManipulateLineData,
 } from "./CursorViewModel"
+import {
+  Interactor,
+  InteractorInputType,
+} from "../../../Core/Interactor/Interactor"
+import LineRenderer, {
+  LineViewConfig,
+} from "../../../Utils/views/LineRenderer/LineRenderer"
 
-import {InteractionManager} from "../../../Core/InteractionManager/InteractionManager"
 import BaseInteractor from "../../../Core/Interactor/BaseInteractor"
 import {CursorControllerProvider} from "../../../Providers/CursorControllerProvider/CursorControllerProvider"
-import {HandType} from "../../../Providers/HandInputData/HandType"
 import Event from "../../../Utils/Event"
+import {HandType} from "../../../Providers/HandInputData/HandType"
+import {InteractionManager} from "../../../Core/InteractionManager/InteractionManager"
 import {validate} from "../../../Utils/validate"
 
 export enum CursorMode {
@@ -33,13 +29,6 @@ export enum CursorMode {
   Disabled = "Disabled",
   Custom = "Custom",
 }
-
-export type CursorParameters = {
-  worldPosition: vec3
-  worldRotation: vec3
-  worldScale: vec3
-  isShown: boolean
-} & CircleVisualMaterialParameters
 
 const TAG = "InteractorCursor"
 
@@ -282,29 +271,6 @@ export class InteractorCursor extends BaseScriptComponent {
    */
   set renderOrder(renderOrder: number) {
     this.circleVisual.renderOrder = renderOrder
-  }
-
-  /**
-   * @returns the transform and material parameters of the cursor to allow other cursor implementations to re-use the same values.
-   */
-  get cursorParameters(): CursorParameters {
-    const transform = this.circleVisual.sceneObject.getTransform()
-    const materialParameters = this.circleVisual.materialParameters
-    return {
-      worldPosition: transform.getWorldPosition(),
-      worldRotation: transform.getWorldRotation().toEulerAngles(),
-      worldScale: transform.getWorldScale(),
-      isShown: this.circleVisual.isShown,
-      maxAlpha: materialParameters.maxAlpha,
-      outlineAlpha: materialParameters.outlineAlpha,
-      outlineOffset: materialParameters.outlineOffset,
-      circleSquishScale: materialParameters.circleSquishScale,
-      isTriggering: materialParameters.isTriggering,
-      useTexture: materialParameters.useTexture,
-      cursorTexture: materialParameters.cursorTexture,
-      handType: materialParameters.handType,
-      multipleInteractorsActive: materialParameters.multipleInteractorsActive,
-    }
   }
 
   private updateManipulateLine(data: ManipulateLineData) {

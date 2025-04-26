@@ -35,7 +35,7 @@ export default abstract class BaseCameraFinderProvider extends BaseWorldCameraPr
   protected setCamera(cameraComponent: Camera): void {
     if (cameraComponent === null) {
       throw new Error(
-        "Could not find any suitable camera in the scene, make sure it is setup correctly",
+        "Could not find any suitable camera in the scene, make sure it is setup correctly"
       )
     }
     if (
@@ -43,7 +43,7 @@ export default abstract class BaseCameraFinderProvider extends BaseWorldCameraPr
       null
     ) {
       throw new Error(
-        "Your main camera is currently missing a 'Device Tracking Component'. Set your `Device Tracking Component` with Tracking Mode: World for spatial movement in your Lens.",
+        "Your main camera is currently missing a 'Device Tracking Component'. Set your `Device Tracking Component` with Tracking Mode: World for spatial movement in your Lens."
       )
     }
     this.cameraComponent = cameraComponent
@@ -51,17 +51,17 @@ export default abstract class BaseCameraFinderProvider extends BaseWorldCameraPr
   }
 
   private lookForDeviceTrackingComponent(
-    sceneObject: SceneObject,
+    sceneObject: SceneObject
   ): DeviceTracking | null {
     const deviceTrackingComponent = sceneObject.getComponent(
-      "Component.DeviceTracking",
+      "Component.DeviceTracking"
     )
 
     return deviceTrackingComponent
   }
 
   protected bfsFromRoot(
-    predicate: (sceneObject: SceneObject) => Camera | null,
+    predicate: (sceneObject: SceneObject) => Camera | null
   ): Camera | null {
     // Get root objects from the scene
     const rootObjects = []

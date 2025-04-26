@@ -1,5 +1,5 @@
-import {validate} from "../../Utils/validate"
 import {Interactable} from "../Interaction/Interactable/Interactable"
+import {validate} from "../../Utils/validate"
 
 /**
  * This class provides visual feedback by adding an outline to mesh visuals when they are hovered or pinched. It allows customization of the outline color, thickness, and target meshes.

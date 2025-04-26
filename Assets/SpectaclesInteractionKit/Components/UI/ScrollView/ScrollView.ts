@@ -1,11 +1,11 @@
-import {InteractorInputType} from "../../../Core/Interactor/Interactor"
 import {DragInteractorEvent} from "../../../Core/Interactor/InteractorEvent"
+import {InteractorInputType} from "../../../Core/Interactor/Interactor"
 import {MobileInteractor} from "../../../Core/MobileInteractor/MobileInteractor"
 import NativeLogger from "../../../Utils/NativeLogger"
 import {SceneObjectBoundariesProvider} from "./boundariesProvider/SceneObjectBoundariesProvider"
-import {VisualBoundariesProvider} from "./boundariesProvider/VisualBoundariesProvider"
 import {ScrollArea} from "./ScrollArea"
 import {ScrollProvider} from "./ScrollProvider"
+import {VisualBoundariesProvider} from "./boundariesProvider/VisualBoundariesProvider"
 
 export const AXIS_DIRECTION = [-1, 0, 1] as const
 export type AxisDirection = (typeof AXIS_DIRECTION)[number]
@@ -235,9 +235,6 @@ export class ScrollView extends BaseScriptComponent {
   get onFocusExit() {
     return this.scrollArea.onFocusExit
   }
-  get isDragging() {
-    return this.scrollArea.isDragging
-  }
 
   get debugDrawEnabled(): boolean {
     return this._debugDrawEnabled
@@ -315,13 +312,6 @@ export class ScrollView extends BaseScriptComponent {
    */
   resetContentOrigin(): void {
     this.scrollProvider.resetContentOrigin()
-  }
-
-  /**
-   * Resets the inertia velocity in the case that the developer wants to stop physics upon certain events.
-   */
-  resetInertiaVelocity(): void {
-    this.scrollProvider.resetInertiaVelocity()
   }
 
   /**

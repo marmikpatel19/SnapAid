@@ -236,10 +236,10 @@ export default class DefaultHeadlockController {
 
     // Move the sphere around the user's head and updates the target to maintain the same angle.
     const translationOffset = this.translationCalculator.updateCenter(
-      this.cameraTransform.getWorldPosition(),
+      this.cameraTransform.getWorldPosition()
     )
     this.targetTransform.setWorldPosition(
-      translationOffset.add(this.targetTransform.getWorldPosition()),
+      translationOffset.add(this.targetTransform.getWorldPosition())
     )
 
     // Rotate the target along the sphere to reach the desired offsets.
@@ -257,7 +257,7 @@ export default class DefaultHeadlockController {
             this.getCenterToTargetVector(),
             vec3.up(),
             this.getFaceForwardVector(),
-            this.cameraTransform.up,
+            this.cameraTransform.up
           )
           break
         case RotationAxis.Yaw:
@@ -268,13 +268,13 @@ export default class DefaultHeadlockController {
                   new vec3(
                     this.cameraTransform.left.x,
                     0,
-                    this.cameraTransform.left.z,
-                  ),
+                    this.cameraTransform.left.z
+                  )
                 )
               : vec3.up(),
             this.getCenterToTargetVector(),
             this.cameraTransform.right.projectOnPlane(vec3.up()),
-            this.getFaceForwardVector(),
+            this.getFaceForwardVector()
           )
           break
         default:
@@ -282,7 +282,7 @@ export default class DefaultHeadlockController {
       }
 
       this.targetTransform.setWorldPosition(
-        rotationOffset.add(this.targetTransform.getWorldPosition()),
+        rotationOffset.add(this.targetTransform.getWorldPosition())
       )
     }
   }
@@ -300,16 +300,16 @@ export default class DefaultHeadlockController {
     let offset = this.getFaceForwardVector().uniformScale(this.distance)
     let pitchQuaternion = quat.angleAxis(
       MathUtils.DegToRad * (this.headlockComponent.pitchOffsetDegrees ?? 0),
-      vec3.left(),
+      vec3.left()
     )
     offset = pitchQuaternion.multiplyVec3(offset)
     let yawQuaternion = quat.angleAxis(
       MathUtils.DegToRad * (this.headlockComponent.yawOffsetDegrees ?? 0),
-      vec3.up(),
+      vec3.up()
     )
     offset = yawQuaternion.multiplyVec3(offset)
     this.targetTransform.setWorldPosition(
-      this.cameraTransform.getWorldPosition().add(offset),
+      this.cameraTransform.getWorldPosition().add(offset)
     )
   }
 }

@@ -39,7 +39,7 @@ export class InteractionManager {
 
   private _debugModeEnabled = false
 
-  /*
+  /* 
     shouldEnableNonMobileInteractors is nullable because we use this as a cached class-level condition to
     compare against the function-level condition in disableOtherInteractorsIfMobileInputTypeIsDetected().
     Initializing to null here ensures the first frame always initializes the interactor's activeness properly.
@@ -135,7 +135,7 @@ export class InteractionManager {
     }
 
     this.log.d(
-      `Registered interaction plane "${interactionPlane.sceneObject.name}"`,
+      `Registered interaction plane "${interactionPlane.sceneObject.name}"`
     )
   }
 
@@ -154,7 +154,7 @@ export class InteractionManager {
      * if it is the same as the InteractionPlane that was just deregistered
      */
     const handInteractors = this.getInteractorsByType(
-      InteractorInputType.BothHands,
+      InteractorInputType.BothHands
     ) as HandInteractor[]
     for (const handInteractor of handInteractors) {
       handInteractor.clearInteractionPlane(interactionPlane)
@@ -162,7 +162,7 @@ export class InteractionManager {
 
     if (this.interactionPlanes.delete(interactionPlane)) {
       this.log.d(
-        `Deregistered interaciton plane  "${interactionPlane.sceneObject.name}"`,
+        `Deregistered interaciton plane  "${interactionPlane.sceneObject.name}"`
       )
     }
   }
@@ -200,7 +200,7 @@ export class InteractionManager {
     }
 
     this.log.d(
-      `Registered interactable "${interactable.sceneObject.name}" with ${colliders.length} colliders`,
+      `Registered interactable "${interactable.sceneObject.name}" with ${colliders.length} colliders`
     )
   }
 
@@ -281,7 +281,7 @@ export class InteractionManager {
    * @param targetingMode the targeting mode that the interactable(s) are configured to
    */
   getInteractablesByTargetingMode(
-    targetingMode: TargetingMode,
+    targetingMode: TargetingMode
   ): Interactable[] {
     return this.getInteractablesThatTarget(targetingMode)
   }
@@ -547,7 +547,7 @@ export class InteractionManager {
    * @returns an array of {@link ColliderComponent}
    */
   private findOrCreateColliderForInteractable(
-    interactable: Interactable,
+    interactable: Interactable
   ): ColliderComponent[] {
     let colliders = interactable.colliders
     let sceneObject = interactable.sceneObject
@@ -556,7 +556,7 @@ export class InteractionManager {
     }
     if (colliders.length === 0) {
       this.log.d(
-        `No ColliderComponent in ${sceneObject.name}'s hierarchy. Creating one...`,
+        `No ColliderComponent in ${sceneObject.name}'s hierarchy. Creating one...`
       )
 
       colliders.push(sceneObject.createComponent("Physics.ColliderComponent"))
@@ -579,7 +579,7 @@ export class InteractionManager {
   private findCollidersForSceneObject(
     sceneObject: SceneObject,
     colliders: ColliderComponent[],
-    isRoot: boolean = false,
+    isRoot: boolean = false
   ): ColliderComponent[] {
     const interactable = sceneObject.getComponent(Interactable.getTypeName())
 
@@ -588,16 +588,16 @@ export class InteractionManager {
     }
 
     const foundColliders = sceneObject.getComponents(
-      "Physics.ColliderComponent",
+      "Physics.ColliderComponent"
     )
     const collidersRegistered =
       foundColliders.find((collider: ColliderComponent) =>
-        this.colliderToInteractableMap.has(collider),
+        this.colliderToInteractableMap.has(collider)
       ) !== undefined
 
     if (collidersRegistered) {
       this.log.w(
-        `Some colliders in ${sceneObject.name} were already registered with an Interactable object.`,
+        `Some colliders in ${sceneObject.name} were already registered with an Interactable object.`
       )
     }
 
@@ -613,13 +613,13 @@ export class InteractionManager {
 
   private disableOtherInteractorsIfMobileInputTypeIsDetected() {
     const mobileInteractors = this.getInteractorsByType(
-      InteractorInputType.Mobile,
+      InteractorInputType.Mobile
     )
     if (mobileInteractors.length === 0) {
       return
     }
     const handInteractors = this.getInteractorsByType(
-      InteractorInputType.BothHands,
+      InteractorInputType.BothHands
     )
     const shouldEnableOtherInteractors = !mobileInteractors[0].isActive()
 
@@ -635,10 +635,10 @@ export class InteractionManager {
       }
 
       handInteractors.forEach((handInteractor: Interactor) =>
-        handInteractor.setInputEnabled(shouldEnableOtherInteractors),
+        handInteractor.setInputEnabled(shouldEnableOtherInteractors)
       )
       const mouseInteractors = this.getInteractorsByType(
-        InteractorInputType.Mouse,
+        InteractorInputType.Mouse
       )
       if (mouseInteractors.length > 0) {
         mouseInteractors.forEach((mouseInteractor: Interactor) => {

@@ -52,7 +52,7 @@ export default class ContinuousIrInteractionTransition
   computeXRotationInDegrees(
     gazePitchInDegrees: number,
     toWorldFromSituationSpace: mat4,
-    handPoint: vec3,
+    handPoint: vec3
   ): number {
     const transformedHandPoint = toWorldFromSituationSpace
       .inverse()
@@ -68,14 +68,14 @@ export default class ContinuousIrInteractionTransition
   computeXRotationInRadians(
     gazePitchInRadians: number,
     toWorldFromSituationSpace: mat4,
-    handPoint: vec3,
+    handPoint: vec3
   ): number {
     return (
       MathUtils.DegToRad *
       this.computeXRotationInDegrees(
         MathUtils.RadToDeg * gazePitchInRadians,
         toWorldFromSituationSpace,
-        handPoint,
+        handPoint
       )
     )
   }
@@ -88,16 +88,16 @@ export default class ContinuousIrInteractionTransition
    */
   private computeMultiplier(
     handPoint: vec3,
-    gazePitchInDegrees: number,
+    gazePitchInDegrees: number
   ): number {
     const effect = MathUtils.clamp(
       inverseLerp(
         -ContinousIrInteractionTransitionConfigDefault.minNeckHandDifference,
         -ContinousIrInteractionTransitionConfigDefault.maxNeckHandDifference,
-        handPoint.y,
+        handPoint.y
       ),
       0,
-      1,
+      1
     )
 
     const counterEffect =
@@ -106,10 +106,10 @@ export default class ContinuousIrInteractionTransition
             inverseLerp(
               -ContinousIrInteractionTransitionConfigDefault.minGazePitchDegrees,
               -ContinousIrInteractionTransitionConfigDefault.maxGazePitchDegrees,
-              gazePitchInDegrees,
+              gazePitchInDegrees
             ),
             0,
-            1,
+            1
           )
         : 0
     return MathUtils.clamp(effect - counterEffect, 0, 1)

@@ -11,12 +11,9 @@ export type ZoneProjection = {
   distance: number
   isWithinInteractionZone: boolean
   isWithinBehindZone: boolean
-  isWithinDirectZone: boolean
 }
 
 const DEFAULT_INTERACTION_ZONE_DISTANCE_CM = 20
-
-const DEFAULT_DIRECT_ZONE_DISTANCE_CM = 7.5
 // The value to use to widen the interaction zone as it gets further away from the plane.
 const DEFAULT_INTERACTION_ZONE_SLOPE = 0.25
 
@@ -36,9 +33,6 @@ export class InteractionPlane extends BaseScriptComponent {
   private _proximityDistance: number = DEFAULT_INTERACTION_ZONE_DISTANCE_CM
 
   @input
-  private _directZoneDistance: number = DEFAULT_DIRECT_ZONE_DISTANCE_CM
-
-  @input
   private _drawDebug: boolean = false
 
   @input
@@ -51,12 +45,6 @@ export class InteractionPlane extends BaseScriptComponent {
     super()
 
     this.createEvent("OnDestroyEvent").bind(() => this.release())
-    this.createEvent("OnEnableEvent").bind(() => {
-      InteractionManager.getInstance().registerInteractionPlane(this)
-    })
-    this.createEvent("OnDisableEvent").bind(() => {
-      InteractionManager.getInstance().deregisterInteractionPlane(this)
-    })
 
     InteractionManager.getInstance().registerInteractionPlane(this)
 
@@ -76,7 +64,7 @@ export class InteractionPlane extends BaseScriptComponent {
     shape.size = new vec3(
       this.planeSize.x + slopeOffset,
       this.planeSize.y + slopeOffset,
-      this.proximityDistance * 2,
+      this.proximityDistance * 2
     )
 
     this.collider.shape = shape
@@ -112,20 +100,6 @@ export class InteractionPlane extends BaseScriptComponent {
    */
   get proximityDistance(): number {
     return this._proximityDistance
-  }
-
-  /**
-   * Sets the depth (in world units) of the plane's direct interaction zone along the local Z axis of the SceneObject.
-   */
-  set directZoneDistance(distance: number) {
-    this._directZoneDistance = distance
-  }
-
-  /**
-   * Returns the depth (in world units) of the plane's direct interaction zone along the local Z axis of the SceneObject.
-   */
-  get directZoneDistance(): number {
-    return this._directZoneDistance
   }
 
   /**
@@ -220,15 +194,6 @@ export class InteractionPlane extends BaseScriptComponent {
       Math.abs(y) <=
         this.planeSize.y + distance * DEFAULT_INTERACTION_ZONE_SLOPE
 
-    // Check if the point is within the direct interaction distance threshold.
-    const isWithinDirectZone =
-      distance >= 0 &&
-      distance <= this.directZoneDistance &&
-      Math.abs(x) <=
-        this.planeSize.x + distance * DEFAULT_INTERACTION_ZONE_SLOPE &&
-      Math.abs(y) <=
-        this.planeSize.y + distance * DEFAULT_INTERACTION_ZONE_SLOPE
-
     // Check if the point is in behind the plane, within the behind zone distance threshold, and within the planeSize boundaries.
     const isWithinBehindZone =
       distance < 0 &&
@@ -242,7 +207,6 @@ export class InteractionPlane extends BaseScriptComponent {
       distance: distance,
       isWithinInteractionZone: isWithinInteractionZone,
       isWithinBehindZone: isWithinBehindZone,
-      isWithinDirectZone: isWithinDirectZone,
     }
     return planeProjection
   }

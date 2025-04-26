@@ -110,11 +110,6 @@ export interface Interactor {
 
   drawDebug: boolean
 
-  onTriggerStart: PublicApi<Interactable | null>
-  onTriggerUpdate: PublicApi<Interactable | null>
-  onTriggerEnd: PublicApi<Interactable | null>
-  onTriggerCanceled: PublicApi<Interactable | null> // Maybe? Not sure.
-
   isTargeting(): boolean
 
   isActive(): boolean

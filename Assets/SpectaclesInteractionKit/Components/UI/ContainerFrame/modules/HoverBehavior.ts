@@ -48,7 +48,7 @@ export class HoverBehavior {
 
   constructor(
     private interactable: Interactable,
-    private name: string = "HoverBehavior",
+    private name: string = "HoverBehavior"
   ) {
     this.setupStateMachine()
 
@@ -60,7 +60,6 @@ export class HoverBehavior {
   destroy(): void {
     this.log.d(`has been destroyed!`)
     this.isDestroyed = true
-    this.stateMachine.destroy()
     this.unBindHoverEvents()
   }
 
@@ -68,7 +67,7 @@ export class HoverBehavior {
     this.unsubscribeList.push(this.interactable.onHoverEnter(this.onHoverEnter))
     this.unsubscribeList.push(this.interactable.onHoverExit(this.onHoverExit))
     this.unsubscribeList.push(
-      this.interactable.onHoverUpdate(this.onHoverUpdated),
+      this.interactable.onHoverUpdate(this.onHoverUpdated)
     )
   }
 
@@ -99,7 +98,7 @@ export class HoverBehavior {
         this.log.d(`container requested active state:${this.requestActive}`)
       }
       this.stateMachine.sendSignal(
-        this.requestActive ? Signal.RequestActive : Signal.RequestInActive,
+        this.requestActive ? Signal.RequestActive : Signal.RequestInActive
       )
     }
 

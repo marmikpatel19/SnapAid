@@ -1,5 +1,5 @@
 import {Interactable} from "../../../../Components/Interaction/Interactable/Interactable"
-import {TargetingMode} from "../../../../Core/Interactor/Interactor"
+import {PinchButton} from "../../../../Components/UI/PinchButton/PinchButton"
 import {InteractorEvent} from "../../../../Core/Interactor/InteractorEvent"
 import Event, {PublicApi} from "../../../../Utils/Event"
 import NativeLogger from "../../../../Utils/NativeLogger"
@@ -26,6 +26,7 @@ export class LabeledPinchButton {
   private isToggle = this.options.toggle ?? false
   toggled = false
   private interactable: Interactable | null
+  private pinchButton: PinchButton | null
   private triggerEvent: Event = new Event()
   onTrigger: PublicApi<void> = this.triggerEvent.publicApi()
 
@@ -47,8 +48,10 @@ export class LabeledPinchButton {
     this.labeledPinchButtonPrefab = options.prefab
     this.object = this.labeledPinchButtonPrefab.instantiate(null)
     this.interactable = this.object.getComponent(Interactable.getTypeName())
+    this.pinchButton = this.object.getComponent(PinchButton.getTypeName())
 
     validate(this.interactable)
+    validate(this.pinchButton)
 
     this.transform = this.object.getTransform()
 
@@ -85,8 +88,6 @@ export class LabeledPinchButton {
       }
       this.material.mainPass.hovered = 0
     })
-
-    this.interactable.targetingMode = TargetingMode.All
   }
 
   setRenderOrder = (newOrder: number) => {

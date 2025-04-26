@@ -1,4 +1,4 @@
-import {setTimeout} from "../../../../Utils/FunctionTimingUtils"
+import {setTimeout} from "../../../../Utils/debounce"
 import {
   clamp,
   DegToRad,
@@ -61,7 +61,7 @@ export class SmoothFollow {
     this.resize(
       this.frame.innerSize.x +
         this.frame.border * 2 +
-        this.frame.constantPadding.x,
+        this.frame.constantPadding.x
     )
     setTimeout(() => {
       this.clampPosition()
@@ -96,14 +96,14 @@ export class SmoothFollow {
       this.target.z,
       (1.1 * this.visibleWidth) /
         2 /
-        Math.tan((this.fieldOfView / 2) * DegToRad),
+        Math.tan((this.fieldOfView / 2) * DegToRad)
     ) // handle very wide panels
     this.target.y = clamp(this.target.y, this.minElevation, this.maxElevation)
     const dist = new vec2(this.target.y, this.target.z).length
     const halfFov = Math.atan(
       (Math.tan((this.fieldOfView / 2) * DegToRad) * dist -
         this.visibleWidth / 2) /
-        this.target.z,
+        this.target.z
     )
     this.target.x = clamp(this.target.x, -halfFov, halfFov)
     this.velocity = vec3.zero()
@@ -122,21 +122,21 @@ export class SmoothFollow {
         this.target.x,
         this.velocity.x,
         this.translationTime,
-        getDeltaTime(),
+        getDeltaTime()
       )
       ;[pos.y, this.velocity.y] = smoothDamp(
         pos.y,
         this.target.y,
         this.velocity.y,
         this.translationTime,
-        getDeltaTime(),
+        getDeltaTime()
       )
       ;[pos.z, this.velocity.z] = smoothDamp(
         pos.z,
         this.target.z,
         this.velocity.z,
         this.translationTime,
-        getDeltaTime(),
+        getDeltaTime()
       )
       this.worldPos = this.bodyToWorld(this.cylindricalToCartesian(pos))
       ;[this.heading, this.omega] = smoothDampAngle(
@@ -144,7 +144,7 @@ export class SmoothFollow {
         this.cameraHeading,
         this.omega,
         this.rotationTime,
-        getDeltaTime(),
+        getDeltaTime()
       )
       // force billboard
       this.worldRot = quat
@@ -157,7 +157,7 @@ export class SmoothFollow {
     return new vec3(
       Math.atan2(-v.x, -v.z),
       v.y,
-      Math.sqrt(v.x * v.x + v.z * v.z),
+      Math.sqrt(v.x * v.x + v.z * v.z)
     )
   }
 

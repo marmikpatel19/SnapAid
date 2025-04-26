@@ -21,7 +21,7 @@
   VersionMajor: 0
   VersionMinor: 0
   VersionPatch: 0
-  ComponentUid: 31429ee1-1e5a-4fc4-aae8-eeff8c729553
+  ComponentUid: 6240816b-5406-43e5-9234-eec48bc79845
   ExportUid: 00000000-0000-0000-0000-000000000000
   CurrentVisibility: Editable
   MaxVisibility: Editable
@@ -35,10 +35,7 @@
     launchPlatformToggleButton: false
     launchSparks: false
     rocketAnimationPlayer: false
-    rocketAudioComponent: false
     rocketConf: false
-    rocketLandSFX: false
-    rocketLaunchSFX: false
     slider: false
   ScriptTypesHidden:
     {}
@@ -54,9 +51,6 @@
       flightPathText: !<reference.Text> 00000000-0000-0000-0000-000000000000
       launchPlatformToggleButton: !<MappingBased.ToggleButton> 00000000-0000-0000-0000-000000000000
       launchPlatform: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
-      rocketAudioComponent: !<reference.AudioComponent> 00000000-0000-0000-0000-000000000000
-      rocketLaunchSFX: !<reference.AudioTrackAsset> 00000000-0000-0000-0000-000000000000
-      rocketLandSFX: !<reference.AudioTrackAsset> 00000000-0000-0000-0000-000000000000
   ScriptTypes:
     -
       {}
@@ -69,9 +63,6 @@
     - // @input RocketConfigurator rocketConf
     - // @input SceneObject launchSparks
     - // @input Component.AnimationPlayer rocketAnimationPlayer
-    - // @input Component.AudioComponent rocketAudioComponent
-    - // @input Asset.AudioTrackAsset rocketLaunchSFX
-    - // @input Asset.AudioTrackAsset rocketLandSFX
     - // @input Component.Text flightPathText
     - // @input ToggleButton launchPlatformToggleButton
     - // @input SceneObject launchPlatform

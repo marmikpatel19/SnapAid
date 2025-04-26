@@ -1,0 +1,45 @@
+- !<AssetImportMetadata/fa4af926-068f-4634-a4a0-6ceaf0be443a>
+  ImportedAssetIds:
+    JavaScriptAsset: !<reference> fad8dd15-f85a-4fd9-958e-6bd8dd44da21
+  ImporterName: JavaScriptAssetImporter
+  PrimaryAsset: !<reference> fad8dd15-f85a-4fd9-958e-6bd8dd44da21
+  PackageType: NotAPackage
+  PackagePolicy: CannotBeUnpacked
+  ExtraData:
+    {}
+  AssetDataMap:
+    JavaScriptAsset: !<own> f05d7b09-741c-4762-99a6-6142e17c0f21
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<ScriptAssetData/f05d7b09-741c-4762-99a6-6142e17c0f21>
+  SvgIcon: ""
+  Description: ""
+  InternalVersion: 0
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  ComponentUid: 5ba9d276-900c-4606-b393-f3888ad3a53c
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  CurrentVisibility: Editable
+  MaxVisibility: Editable
+  ScriptInputsHidden:
+    audioComponent: false
+    audioOutputAsset: false
+    voice: false
+  ScriptTypesHidden:
+    {}
+  DefaultScriptInputs:
+    - remoteServiceModule: !<reference.RemoteServiceModule> 00000000-0000-0000-0000-000000000000
+      audioComponent: !<reference.AudioComponent> 00000000-0000-0000-0000-000000000000
+      audioOutputAsset: !<reference.AudioTrackAsset> 00000000-0000-0000-0000-000000000000
+      string: !<RequiredType.{"widget":"combobox","values":[{"value":"alloy","label":"Alloy"},{"value":"echo","label":"Echo"},{"value":"fable","label":"Fable"},{"value":"onyx","label":"Onyx"},{"value":"nova","label":"Nova"},{"value":"shimmer","label":"Shimmer"}]}> 00000000-0000-0000-0000-000000000000
+      voice: !<RequiredType.{String:"alloy"}> 00000000-0000-0000-0000-000000000000
+      myStringInput: !<RequiredType.String> 00000000-0000-0000-0000-000000000000
+      echo: !<RequiredType.{Combo:[alloy,> 00000000-0000-0000-0000-000000000000
+  ScriptTypes:
+    -
+      {}
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000

@@ -55,8 +55,8 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.370881, y: 0.727880, z: 0.000000}
-    rotation: {x: -153.468063, y: -0.938777, z: -180.000000}
+    position: {x: 0.000000, y: 0.727880, z: 0.000000}
+    rotation: {x: -180.000000, y: 0.000000, z: 180.000000}
     scale: {x: 0.900000, y: 0.900000, z: 0.900000}
     hasSegmentScaleCompensation: false
   Children:
@@ -74,6 +74,12 @@
   WorldUpVector: ObjectY
   Target: !<reference> b49fd017-c3f4-45da-b6f3-ea6a4119aa87
   OffsetRotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+- !<ObjectPrefab/5452be0a-7020-433d-a067-5e70540957d5>
+  PackagePath: ""
+  objects:
+    - !<own> f530bbdd-03ca-4d3d-8de2-8d542d6b23bf
+  LazyLoading: false
+  RetainAssets: true
 - !<RenderMeshVisual/57eed659-0619-4a63-b11e-ed7c3f78eda0>
   PrefabRemaps:
     []
@@ -174,12 +180,6 @@
   BlendNormals: false
   BlendShapes:
     {}
-- !<ObjectPrefab/8470807a-b153-452b-8fa9-d428f83e5551>
-  PackagePath: ""
-  objects:
-    - !<own> f530bbdd-03ca-4d3d-8de2-8d542d6b23bf
-  LazyLoading: false
-  RetainAssets: true
 - !<VFXComponent/8968ce37-0ce9-49e2-bf44-edb6f63ffb2c>
   PrefabRemaps:
     []
@@ -200,7 +200,7 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.467197, y: -0.043963, z: -0.007382}
+    position: {x: 0.071278, y: -0.043962, z: -0.007384}
     rotation: {x: 0.000000, y: -0.000000, z: 0.000000}
     scale: {x: 2.000000, y: 1.000000, z: 1.000000}
     hasSegmentScaleCompensation: false
@@ -222,10 +222,9 @@
     - b4aba0b5-4a94-4a62-99c8-a967a669fe21: 5a661435-bc0e-4593-8a90-5d3dfe907a82
     - daa6609e-3a75-4df3-b181-b0d719097da4: 43a5ff26-9983-4c9d-9e12-1783035fecfe
     - dbd2d135-d587-4c37-8e72-f0cc639d27a3: 7d0c87a2-d5ed-4b0f-8cbd-adc58bb57dbb
-    - ea3925be-517e-4636-8b7c-2ef536771898: 8470807a-b153-452b-8fa9-d428f83e5551
     - f06d6fa4-b0cf-44d5-b726-5ea02c7e6cd0: f530bbdd-03ca-4d3d-8de2-8d542d6b23bf
     - fbd5d376-4ba3-4f7b-a0db-221d7c9490cc: 2dad48d9-7a30-4a5f-882b-5c3c5b37d7e2
-  SourceState: !<own> 8470807a-b153-452b-8fa9-d428f83e5551
+  SourceState: !<own> 5452be0a-7020-433d-a067-5e70540957d5
 - !<RenderMeshVisual/cda3769c-7dab-4224-8ccd-250cf6df000a>
   PrefabRemaps:
     []
