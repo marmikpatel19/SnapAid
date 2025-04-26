@@ -21,7 +21,7 @@ export class InputChecker {
   checkUndefined<Type>(input: Type | undefined, inputName: string): Type {
     if (input === undefined) {
       throw new Error(
-        `${inputName} is not specified in SceneObject: ${this.sceneObjectName}`,
+        `${inputName} is not specified in SceneObject: ${this.sceneObjectName}`
       )
     }
 
@@ -37,7 +37,7 @@ export class InputChecker {
    */
   lazyScriptProperty<T>(
     getPropertyFunction: () => T,
-    propertyName: string,
+    propertyName: string
   ): () => T {
     return lazyProperty(() => {
       return this.checkUndefined(getPropertyFunction(), propertyName)
@@ -53,11 +53,11 @@ export class InputChecker {
    */
   warnIfUndefined<Type>(
     input: Type | undefined,
-    inputName: string,
+    inputName: string
   ): Type | undefined {
     if (input === undefined) {
       this.log.w(
-        `${inputName} is not specified in SceneObject: ${this.sceneObjectName}`,
+        `${inputName} is not specified in SceneObject: ${this.sceneObjectName}`
       )
     }
 

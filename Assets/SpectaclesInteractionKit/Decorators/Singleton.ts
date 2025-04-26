@@ -4,7 +4,7 @@
  * @param constructor
  */
 export function Singleton<T extends new (...args: any[]) => any>(
-  constructor: T,
+  constructor: T
 ): T {
   let _instance: InstanceType<T> | null = null
 

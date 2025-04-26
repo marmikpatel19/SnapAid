@@ -21,7 +21,7 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.375205, y: -0.115677, z: -0.226906}
+    position: {x: -0.013336, y: -0.111188, z: -0.218964}
     rotation: {x: 0.000000, y: -0.000000, z: 0.000000}
     scale: {x: 2.000000, y: 1.000000, z: 1.000000}
     hasSegmentScaleCompensation: false
@@ -42,6 +42,12 @@
   ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
   ShadowDensity: 1.000000
   VFXAsset: !<reference> c403bf42-b482-4aef-8906-13532712a354
+- !<ObjectPrefab/0ddc1050-7f33-4d31-8476-2b7eea5a4a2a>
+  PackagePath: ""
+  objects:
+    - !<own> 393a4e47-59d8-4167-bbf8-f5f38f1dc8c9
+  LazyLoading: false
+  RetainAssets: true
 - !<SceneObject/0f54f89d-731c-4412-ae8b-f5fd137f2c70>
   PrefabRemaps:
     []
@@ -84,8 +90,8 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.244919, y: 0.727880, z: 0.000000}
-    rotation: {x: -150.513351, y: 12.000415, z: -180.000000}
+    position: {x: 0.000000, y: 0.727880, z: 0.000000}
+    rotation: {x: -180.000000, y: 0.000000, z: 180.000000}
     scale: {x: 0.900000, y: 0.900000, z: 0.900000}
     hasSegmentScaleCompensation: false
   Children:
@@ -120,7 +126,7 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.358004, y: 0.034770, z: 0.111524}
+    position: {x: -0.026907, y: -0.037271, z: -0.015821}
     rotation: {x: 0.000000, y: -0.000000, z: 0.000000}
     scale: {x: 2.000000, y: 1.000000, z: 1.000000}
     hasSegmentScaleCompensation: false
@@ -178,8 +184,8 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.244919, y: 0.727880, z: 0.000000}
-    rotation: {x: -157.311432, y: -0.404987, z: -180.000000}
+    position: {x: 0.000000, y: 0.727880, z: 0.000000}
+    rotation: {x: -180.000000, y: 0.000000, z: 180.000000}
     scale: {x: 0.900000, y: 0.900000, z: 0.900000}
     hasSegmentScaleCompensation: false
   Children:
@@ -251,7 +257,6 @@
     - 02487b1b-63fd-4d4d-a62e-b48f76552eb3: 457eede2-5bc7-41e8-9bf7-f82afae666fa
     - 025d258f-5163-4cc3-af2b-4b47f7cd2d84: 393a4e47-59d8-4167-bbf8-f5f38f1dc8c9
     - 127e5351-5873-4465-a8f5-6ce2ce6545bf: 5b32d973-3375-4cb4-aa94-18a533140644
-    - 1383da2b-bbac-47c0-a8e2-611bb57b017a: 8ef1fe11-f287-48f9-a8d8-869b918f7f60
     - 2975f1ed-1abc-4afb-941f-af2a6513c164: da4dfd6a-f2bf-46df-a243-869e66f19615
     - 2f810cf2-0924-49ba-8ed4-810f505f5c4e: 0f54f89d-731c-4412-ae8b-f5fd137f2c70
     - 31c87e8d-4893-453a-9e75-6fe633e05e07: 25800982-8742-4ad2-9635-6a85523e20aa
@@ -276,7 +281,7 @@
     - d3165ada-f4c7-4f84-a30d-db88c258224a: 780a69e7-15e8-45c5-953b-e44f75fb915e
     - db2bf795-1564-4635-ad95-3fbb559e8f5f: f837adcb-6932-4054-8eb6-f13d37db437a
     - fba9e5cf-d3eb-420a-82da-f51cc3b66b30: 342c4695-4791-4349-b73e-7cdc1e999779
-  SourceState: !<own> 8ef1fe11-f287-48f9-a8d8-869b918f7f60
+  SourceState: !<own> 0ddc1050-7f33-4d31-8476-2b7eea5a4a2a
 - !<SceneObject/5b32d973-3375-4cb4-aa94-18a533140644>
   PrefabRemaps:
     []
@@ -319,7 +324,7 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.374548, y: -0.039707, z: -0.262178}
+    position: {x: -0.019787, y: -0.067461, z: -0.328559}
     rotation: {x: 0.000000, y: -0.000000, z: 0.000000}
     scale: {x: 2.000000, y: 1.000000, z: 1.000000}
     hasSegmentScaleCompensation: false
@@ -334,8 +339,8 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.244919, y: 0.727880, z: 0.000000}
-    rotation: {x: -150.517197, y: -13.284865, z: -180.000000}
+    position: {x: 0.000000, y: 0.727880, z: 0.000000}
+    rotation: {x: -180.000000, y: 0.000000, z: 180.000000}
     scale: {x: 0.900000, y: 0.900000, z: 0.900000}
     hasSegmentScaleCompensation: false
   Children:
@@ -373,12 +378,6 @@
   WorldUpVector: ObjectY
   Target: !<reference> b49fd017-c3f4-45da-b6f3-ea6a4119aa87
   OffsetRotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-- !<ObjectPrefab/8ef1fe11-f287-48f9-a8d8-869b918f7f60>
-  PackagePath: ""
-  objects:
-    - !<own> 393a4e47-59d8-4167-bbf8-f5f38f1dc8c9
-  LazyLoading: false
-  RetainAssets: true
 - !<SceneObject/a41c4b41-8457-4b30-83bd-eadf52a1975d>
   PrefabRemaps:
     []

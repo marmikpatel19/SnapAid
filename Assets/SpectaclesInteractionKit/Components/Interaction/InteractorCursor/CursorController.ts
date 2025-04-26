@@ -3,9 +3,9 @@ import {
   InteractorInputType,
 } from "../../../Core/Interactor/Interactor"
 
-import {InteractionManager} from "../../../Core/InteractionManager/InteractionManager"
 import BaseInteractor from "../../../Core/Interactor/BaseInteractor"
 import {CursorControllerProvider} from "../../../Providers/CursorControllerProvider/CursorControllerProvider"
+import {InteractionManager} from "../../../Core/InteractionManager/InteractionManager"
 import {InteractorCursor} from "./InteractorCursor"
 
 /**

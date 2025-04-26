@@ -187,7 +187,7 @@ export const easingFunctions = {
     0.3,
     -0.25,
     0.6,
-    1.42,
+    1.42
   ),
 } as const
 
@@ -226,7 +226,7 @@ export default function animate(config: AnimateConfig): CancelFunction {
        * that the animation does not progress incorrectly when in capture mode.
        */
       AnimationManager.getInstance().requestAnimationFrame(() =>
-        frame(delayFrames),
+        frame(delayFrames)
       )
 
       return
@@ -260,7 +260,7 @@ export default function animate(config: AnimateConfig): CancelFunction {
 
     // continue the animation
     AnimationManager.getInstance().requestAnimationFrame(() =>
-      frame(delayFrames === 0 ? 0 : delayFrames - 1),
+      frame(delayFrames === 0 ? 0 : delayFrames - 1)
     )
   }
 
@@ -330,14 +330,14 @@ export function mix(a: any, b: any, t: number) {
     return new vec3(
       mixNumbers(a.x, b.x, t),
       mixNumbers(a.y, b.y, t),
-      mixNumbers(a.z, b.z, t),
+      mixNumbers(a.z, b.z, t)
     )
   } else if (b instanceof vec4) {
     return new vec4(
       mixNumbers(a.x, b.x, t),
       mixNumbers(a.y, b.y, t),
       mixNumbers(a.z, b.z, t),
-      mixNumbers(a.w, b.w, t),
+      mixNumbers(a.w, b.w, t)
     )
   } else if (b instanceof quat) {
     return quat.slerp(a, b, t)
@@ -362,7 +362,7 @@ function createCubicBezierEasingFunction(
   x1: number,
   y1: number,
   x2: number,
-  y2: number,
+  y2: number
 ): (t: number) => number {
   const p0 = new vec2(0, 0)
   const p1 = new vec2(x1, y1)

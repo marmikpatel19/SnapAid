@@ -25,7 +25,7 @@ export default class RaycastLegacySingleCamera extends RaycastBase {
     } else {
       // Find the ray direction
       let targetingRay = this.hand.middleKnuckle.position.sub(
-        this.calculateRayDirectionAnchor(),
+        this.calculateRayDirectionAnchor()
       )
 
       validate(this.locusOneEuroFilter)
@@ -34,7 +34,7 @@ export default class RaycastLegacySingleCamera extends RaycastBase {
       return {
         locus: this.locusOneEuroFilter.filter(
           this.hand.middleKnuckle.position,
-          getTime(),
+          getTime()
         ),
         direction: this.directionOneEuroFilter
           .filter(targetingRay, getTime())

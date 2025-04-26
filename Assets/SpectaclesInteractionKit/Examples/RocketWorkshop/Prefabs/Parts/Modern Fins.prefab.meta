@@ -194,6 +194,12 @@
   BlendNormals: false
   BlendShapes:
     {}
+- !<ObjectPrefab/70ac78a3-5334-4e68-b425-d0635add61e8>
+  PackagePath: ""
+  objects:
+    - !<own> b5a4ae14-9e18-48b4-805f-f87843b55b7b
+  LazyLoading: false
+  RetainAssets: true
 - !<LookAtComponent/7a1bf959-cfe0-42df-86ee-7a87d8b250e9>
   PrefabRemaps:
     []
@@ -241,7 +247,7 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.508353, y: -0.039599, z: -0.089446}
+    position: {x: -0.053362, y: -0.069726, z: -0.158992}
     rotation: {x: 0.000000, y: -0.000000, z: 0.000000}
     scale: {x: 2.000000, y: 1.000000, z: 1.000000}
     hasSegmentScaleCompensation: false
@@ -256,8 +262,8 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.442145, y: 0.727880, z: 0.000000}
-    rotation: {x: -153.569534, y: 8.071533, z: -180.000000}
+    position: {x: 0.000000, y: 0.727880, z: 0.000000}
+    rotation: {x: -180.000000, y: 0.000000, z: 180.000000}
     scale: {x: 0.900000, y: 0.900000, z: 0.900000}
     hasSegmentScaleCompensation: false
   Children:
@@ -302,8 +308,8 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.442145, y: 0.727880, z: 0.000000}
-    rotation: {x: -149.175827, y: -1.486964, z: -180.000000}
+    position: {x: 0.000000, y: 0.727880, z: 0.000000}
+    rotation: {x: -180.000000, y: 0.000000, z: 180.000000}
     scale: {x: 0.900000, y: 0.900000, z: 0.900000}
     hasSegmentScaleCompensation: false
   Children:
@@ -393,7 +399,7 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.449052, y: -0.040713, z: -0.095112}
+    position: {x: 0.006524, y: -0.077701, z: -0.157105}
     rotation: {x: 0.000000, y: -0.000000, z: 0.000000}
     scale: {x: 2.000000, y: 1.000000, z: 1.000000}
     hasSegmentScaleCompensation: false
@@ -408,7 +414,7 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.490712, y: -0.099991, z: -0.213263}
+    position: {x: -0.029452, y: -0.099991, z: -0.213263}
     rotation: {x: 0.000000, y: -0.000000, z: 0.000000}
     scale: {x: 2.000000, y: 1.000000, z: 1.000000}
     hasSegmentScaleCompensation: false
@@ -452,13 +458,12 @@
     - d6d2080e-2e84-481f-9011-4a1d1400e1ed: 6e713d6e-02a5-4535-9c15-f724b198f270
     - d704c3a6-2a5b-4d5b-91bd-07c111e86382: c719f55f-1325-4276-bfae-74de601bfdfe
     - d90f0c4d-9ff8-43bf-874f-5d4bf6a72f75: 8e40a122-edf9-4060-af93-75b5a2608fce
-    - e326fb1f-f4a5-48db-b9cf-a145ade44f42: cb418ffa-ba78-43b8-a5e4-bc16a7f94a5c
     - e7d645b0-60e4-4d34-bed7-8497d774d52a: 26287c77-36c2-4841-aee8-4f235e9c56e5
     - f311ac74-15e8-4f09-a49e-f4fbb6f61b02: ab3dda23-2c28-40ca-bad3-525369406488
     - f4a3e15f-a385-4449-ae41-cba595568750: 9e4a755b-1564-46fd-9dd2-bebb423ab942
     - f7d85358-7877-4bd4-b7d2-a14d94aebfab: fa2f0455-b139-45b4-85d7-9fc824dfff04
     - fd41efb5-5cd8-431a-8118-44e4106107ac: 4c8cd165-d8ed-4519-acbf-d3d6136ef407
-  SourceState: !<own> cb418ffa-ba78-43b8-a5e4-bc16a7f94a5c
+  SourceState: !<own> 70ac78a3-5334-4e68-b425-d0635add61e8
 - !<VFXComponent/c719f55f-1325-4276-bfae-74de601bfdfe>
   PrefabRemaps:
     []
@@ -492,12 +497,6 @@
   BlendNormals: false
   BlendShapes:
     {}
-- !<ObjectPrefab/cb418ffa-ba78-43b8-a5e4-bc16a7f94a5c>
-  PackagePath: ""
-  objects:
-    - !<own> b5a4ae14-9e18-48b4-805f-f87843b55b7b
-  LazyLoading: false
-  RetainAssets: true
 - !<RenderMeshVisual/cddbe5c9-2374-48f2-86cc-f4920f2f693e>
   PrefabRemaps:
     []
@@ -610,7 +609,7 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.416145, y: 0.021467, z: 0.031602}
+    position: {x: 0.021074, y: -0.043960, z: -0.100001}
     rotation: {x: 0.000000, y: -0.000000, z: 0.000000}
     scale: {x: 2.000000, y: 1.000000, z: 1.000000}
     hasSegmentScaleCompensation: false
@@ -625,8 +624,8 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.442145, y: 0.727880, z: 0.000000}
-    rotation: {x: -156.577560, y: -1.061063, z: -180.000000}
+    position: {x: 0.000000, y: 0.727880, z: 0.000000}
+    rotation: {x: -180.000000, y: 0.000000, z: 180.000000}
     scale: {x: 0.900000, y: 0.900000, z: 0.900000}
     hasSegmentScaleCompensation: false
   Children:
@@ -656,8 +655,8 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.442145, y: 0.727880, z: 0.000000}
-    rotation: {x: -153.641953, y: -10.509273, z: -180.000000}
+    position: {x: 0.000000, y: 0.727880, z: 0.000000}
+    rotation: {x: -180.000000, y: 0.000000, z: 180.000000}
     scale: {x: 0.900000, y: 0.900000, z: 0.900000}
     hasSegmentScaleCompensation: false
   Children:

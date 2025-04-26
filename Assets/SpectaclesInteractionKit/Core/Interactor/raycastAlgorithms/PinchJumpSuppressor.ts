@@ -192,14 +192,14 @@ export class PinchJumpSuppressor {
 
   protected stableFingerRootsAverageDistance = new TimedScalarContainer(
     WindowMode.TIME,
-    PinchJumpSuppressorConfigDefault.stableFingerRootsAverageDistanceWindowSizeSec,
+    PinchJumpSuppressorConfigDefault.stableFingerRootsAverageDistanceWindowSizeSec
   )
   protected stableFingerRootsTimeSeries: TimedVec2Container[] = []
 
   protected pinchDistance: number | null = null
   protected pinchDistanceTimeSeries = new TimedScalarContainer(
     WindowMode.FRAME,
-    PinchJumpSuppressorConfigDefault.pinchDistanceTimeSeriesWindowSizeFrame,
+    PinchJumpSuppressorConfigDefault.pinchDistanceTimeSeriesWindowSizeFrame
   )
   protected pinchSpeed: number | null = null
 
@@ -254,7 +254,7 @@ export class PinchJumpSuppressor {
     for (let i = 0; i < this.stableKnuckleKeypoints.length; i++) {
       const series = new TimedVec2Container(
         WindowMode.TIME,
-        PinchJumpSuppressorConfigDefault.stableFingerKnuckleVelocityWindowSizeSec,
+        PinchJumpSuppressorConfigDefault.stableFingerKnuckleVelocityWindowSizeSec
       )
       this.stableFingerRootsTimeSeries.push(series)
     }
@@ -279,12 +279,12 @@ export class PinchJumpSuppressor {
     const knucklesDistance =
       this.computeKnucklesDistanceFromSmootingSpaceOrigin(
         knuckleSmoothingSpaceFromWorld,
-        stableKnuckleKeypoints,
+        stableKnuckleKeypoints
       )
     const maxKnuckleMoveIntensity = this.computeMaxKnuckleMoveIntensity(
       knucklesDistance,
       knuckleSmoothingSpaceFromWorld,
-      stableKnuckleKeypoints,
+      stableKnuckleKeypoints
     )
     this.updateSuppressionParameters(maxKnuckleMoveIntensity)
   }
@@ -328,7 +328,7 @@ export class PinchJumpSuppressor {
    */
   private computeKnucklesDistanceFromSmootingSpaceOrigin(
     knuckleSmoothingSpaceFromWorld: mat4,
-    stableKnuckleKeypoints: (Keypoint | null)[],
+    stableKnuckleKeypoints: (Keypoint | null)[]
   ): number | null {
     let averageDistance = 0
     let length = 0
@@ -337,7 +337,7 @@ export class PinchJumpSuppressor {
         continue
       }
       const position = knuckleSmoothingSpaceFromWorld.multiplyPoint(
-        keypoint.position,
+        keypoint.position
       )
       averageDistance += position.z
       length++
@@ -362,7 +362,7 @@ export class PinchJumpSuppressor {
   private computeMaxKnuckleMoveIntensity(
     knucklesDistance: number | null,
     knuckleSmoothingSpaceFromWorld: mat4,
-    stableKnuckleKeypoints: (Keypoint | null)[],
+    stableKnuckleKeypoints: (Keypoint | null)[]
   ): number {
     let maxKnuckleSpeed = null
     if (knucklesDistance) {
@@ -378,12 +378,12 @@ export class PinchJumpSuppressor {
             ? new vec3(
                 (pointInSmoothingSpace.x / depth) * knucklesDistance,
                 (pointInSmoothingSpace.y / depth) * knucklesDistance,
-                knucklesDistance,
+                knucklesDistance
               )
             : new vec3(
                 pointInSmoothingSpace.x,
                 pointInSmoothingSpace.y,
-                knucklesDistance,
+                knucklesDistance
               )
 
         const usedStablePoint =
@@ -395,7 +395,7 @@ export class PinchJumpSuppressor {
 
         this.stableFingerRootsTimeSeries[i].pushData(
           getTime(),
-          new vec2(usedStablePoint.x, usedStablePoint.y),
+          new vec2(usedStablePoint.x, usedStablePoint.y)
         )
         const knuckleSpeedCmPerSec =
           this.stableFingerRootsTimeSeries[i].aggregateAbsoluteVelocity()
@@ -414,17 +414,17 @@ export class PinchJumpSuppressor {
         inverseLerp(
           this.minKnuckleSpeedCmPerSec,
           this.maxKnuckleSpeedCmPerSec,
-          maxKnuckleSpeed,
+          maxKnuckleSpeed
         ),
         0,
-        1,
+        1
       )
     }
 
     if (this.verboseMode) {
       this.log.d("MaxKnuckleSpeedCmPerSec: " + maxKnuckleSpeed?.toFixed(2))
       this.log.d(
-        "MaxKnuckleMoveIntensity: " + maxKnuckleMoveIntensity.toFixed(2),
+        "MaxKnuckleMoveIntensity: " + maxKnuckleMoveIntensity.toFixed(2)
       )
     }
     return maxKnuckleMoveIntensity
@@ -446,7 +446,7 @@ export class PinchJumpSuppressor {
     let normalizedRadius = inverseLerp(
       this.minPinchDistanceCm,
       this.maxPinchDistanceCm,
-      this.pinchDistance,
+      this.pinchDistance
     )
     normalizedRadius = MathUtils.clamp(normalizedRadius, 0, 1)
     return 1 - normalizedRadius
@@ -464,7 +464,7 @@ export class PinchJumpSuppressor {
     const normalizedSpeed = MathUtils.clamp(
       Math.abs(this.pinchSpeed) / this.maxPinchSpeedCmPerSec,
       0,
-      1,
+      1
     )
 
     if (this.verboseMode) {
@@ -489,7 +489,7 @@ export class PinchJumpSuppressor {
       return
     }
     const newPinchDistance = this.hand.indexTip.position.distance(
-      this.hand.thumbTip.position,
+      this.hand.thumbTip.position
     )
 
     this.pinchDistanceTimeSeries.pushData(getTime(), newPinchDistance)
@@ -527,7 +527,7 @@ export class PinchJumpSuppressor {
     if (this.deltaMode === DeltaMode.MEASURE) {
       this.directionDelta = AxisAngle.getRotationBetween(
         direction,
-        filteredDirection,
+        filteredDirection
       )
 
       if (this.verboseMode) {
@@ -535,7 +535,7 @@ export class PinchJumpSuppressor {
           "directionDelta: " +
             this.directionDelta.angle.toFixed(3) +
             ",  " +
-            this.directionDelta.axis.toString(),
+            this.directionDelta.axis.toString()
         )
       }
     }
@@ -562,7 +562,7 @@ export class PinchJumpSuppressor {
     return this.deltaMode === DeltaMode.APPLY
       ? AxisAngle.applyRotation(
           this.directionDelta.multipliedBy(this.deltaMultiplier),
-          direction,
+          direction
         )
       : direction
   }
@@ -586,14 +586,14 @@ export class PinchJumpSuppressor {
       this.log.d(
         "pinchSpeedDescriptor: " +
           (pinchSpeedDescriptor.isNegative ? "(-)" : "(+)") +
-          pinchSpeedDescriptor.absoluteValue.toFixed(2),
+          pinchSpeedDescriptor.absoluteValue.toFixed(2)
       )
     }
 
     const combinedPinchIntensity = MathUtils.clamp(
       pinchPositionIntensity + pinchSpeedDescriptor.absoluteValue,
       0,
-      1,
+      1
     )
 
     if (this.verboseMode) {
@@ -644,11 +644,11 @@ export class PinchJumpSuppressor {
     if (this.verboseMode) {
       this.log.d(
         "lastActivationTimestampInSecond: " +
-          this.lastActivationTimestampInSecond?.toFixed(2),
+          this.lastActivationTimestampInSecond?.toFixed(2)
       )
       this.log.d(
         "lastDeactivationTimestampInSecond: " +
-          this.lastDeactivationTimestampInSecond?.toFixed(2),
+          this.lastDeactivationTimestampInSecond?.toFixed(2)
       )
     }
   }
@@ -680,11 +680,11 @@ export class PinchJumpSuppressor {
 
       if (this.verboseMode) {
         this.log.d(
-          "timeSinceLastActivation: " + timeSinceLastActivation.toFixed(2),
+          "timeSinceLastActivation: " + timeSinceLastActivation.toFixed(2)
         )
         this.log.d(
           "suppressionBuildUpIntervalHasElapsed: " +
-            suppressionBuildUpIntervalHasElapsed,
+            suppressionBuildUpIntervalHasElapsed
         )
         this.log.d("alphaBase: " + alphaBase.toFixed(2))
       }

@@ -6,7 +6,7 @@
  * @returns - True if it is neither null not undefined.
  */
 export function notEmpty<TValue>(
-  value: TValue | null | undefined,
+  value: TValue | null | undefined
 ): value is TValue {
   return value !== null && value !== undefined
 }

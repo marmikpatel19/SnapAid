@@ -11,7 +11,7 @@
  */
 export function bfs<T>(
   rootObjects: SceneObject[],
-  predicate: (sceneObject: SceneObject) => T,
+  predicate: (sceneObject: SceneObject) => T
 ): T | null {
   for (const rootObject of rootObjects) {
     const queue = [rootObject]
@@ -47,7 +47,7 @@ export function bfs<T>(
  */
 export function filterTrees<T>(
   rootObjects: SceneObject[],
-  predicate: (sceneObject: SceneObject) => T,
+  predicate: (sceneObject: SceneObject) => T
 ): T[] {
   const results: T[] = []
   for (const rootObject of rootObjects) {
@@ -79,7 +79,7 @@ export function filterTrees<T>(
  */
 export function applyToDescendants(
   rootObject: SceneObject,
-  toApply: (sceneObject: SceneObject) => void,
+  toApply: (sceneObject: SceneObject) => void
 ): void {
   for (const childObject of rootObject.children) {
     applyToDescendants(childObject, toApply)

@@ -56,9 +56,8 @@
     - '// @input bool shouldThumbPokeGlow {"hint":"Whether or not the thumb should glow when poking"}'
     - '// @input Asset.RenderMesh unitPlaneMesh {"hint":"The plane mesh on which the glow texture/material will be rendered"}'
     - '// @input Asset.Material tipGlowMaterial {"hint":"The material which will be manipulated to create the glow effect"}'
-    - '// @input vec4 hoverColor {"hint":"The color the glow will be when you are not pinching/poking", "widget":"color"}'
-    - '// @input vec4 triggerColor {"hint":"The color the glow will be when you are pinching/poking", "widget":"color"}'
-    - '// @input vec4 behindColor {"hint":"The color the glow will be when you are pinching/poking too far", "widget":"color"}'
+    - '// @input vec4 idleColor {"hint":"The color the glow will be when you are not pinching", "widget":"color"}'
+    - '// @input vec4 pinchDownColor {"hint":"The color the glow will be when you are pinching", "widget":"color"}'
     - '// @input float tapProximityThreshold {"hint":"How close index finger of tapping hand has to be to tapped hand to initiate tap glow"}'
     - '// @input Asset.Texture pinchTexture {"hint":"The texture applied to the hand when creating pinch glow effect"}'
     - '// @input Asset.Texture tapTexture {"hint":"The texture applied to the hand when creating tap glow effect"}'
@@ -81,13 +80,12 @@
   VersionMajor: 0
   VersionMinor: 0
   VersionPatch: 0
-  ComponentUid: 20dda59e-9729-4015-b995-3d9999fbdf2e
+  ComponentUid: f82fb411-b412-4d7f-ae54-c90688f64275
   ExportUid: 00000000-0000-0000-0000-000000000000
   CurrentVisibility: Editable
   MaxVisibility: Editable
   ScriptInputsHidden:
     autoJointMapping: false
-    behindColor: false
     gradientQuadRenderOrder: true
     handInteractor: false
     handMesh: false
@@ -95,7 +93,7 @@
     handOccluderMaterial: false
     handOutlineMaterial: false
     handType: false
-    hoverColor: false
+    idleColor: false
     indexKnuckle: false
     indexMidJoint: false
     indexTip: false
@@ -108,6 +106,7 @@
     middleUpperJoint: false
     occluderEnabled: false
     occluderUnitPlaneMesh: false
+    pinchDownColor: false
     pinchTexture: false
     pinkyKnuckle: false
     pinkyMidJoint: false
@@ -132,7 +131,6 @@
     thumbToWrist: false
     tipGlowMaterial: false
     tipGlowRenderOrder: true
-    triggerColor: false
     unitPlaneMesh: false
     wrist: false
   ScriptTypesHidden:
@@ -172,6 +170,8 @@
       radialGradientOcclusionMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
       unitPlaneMesh: !<reference.RenderMesh> 00000000-0000-0000-0000-000000000000
       tipGlowMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      idleColor: !<Vec4> {x: 0.000000, y: 0.000000, z: 0.000000, w: 0.000000}
+      pinchDownColor: !<Vec4> {x: 0.000000, y: 0.000000, z: 0.000000, w: 0.000000}
       tapProximityThreshold: !<float> 0.000000
       pinchTexture: !<reference.Texture> 00000000-0000-0000-0000-000000000000
       tapTexture: !<reference.Texture> 00000000-0000-0000-0000-000000000000
@@ -184,9 +184,6 @@
       shouldThumbPokeGlow: false
       handOutlineMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
       handOccluderMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
-      hoverColor: !<Vec4> {x: 0.000000, y: 0.000000, z: 0.000000, w: 0.000000}
-      triggerColor: !<Vec4> {x: 0.000000, y: 0.000000, z: 0.000000, w: 0.000000}
-      behindColor: !<Vec4> {x: 0.000000, y: 0.000000, z: 0.000000, w: 0.000000}
   ScriptTypes:
     -
       {}

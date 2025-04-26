@@ -42,7 +42,7 @@
     - NODE_38_DROPLIST_ITEM 0
     - NODE_49_DROPLIST_ITEM 0
     - NODE_69_DROPLIST_ITEM 0
-  BlendMode: PremultipliedAlphaAuto
+  BlendMode: Disabled
   Properties:
     Port_AO_N036:
       typeIdx: 4

@@ -246,7 +246,7 @@ export default class RaycastAnchorHead extends RaycastBase {
       }
       default: {
         throw new Error(
-          `${TAG}: No matching IrInteractionTransitionStrategy found, could not create strategy`,
+          `${TAG}: No matching IrInteractionTransitionStrategy found, could not create strategy`
         )
       }
     }
@@ -258,7 +258,7 @@ export default class RaycastAnchorHead extends RaycastBase {
   private createTransformToWorldFromSituationBasedSpace(
     up: vec3,
     forward: vec3,
-    cervicalLinkPos: vec3,
+    cervicalLinkPos: vec3
   ): mat4 {
     up = up.normalize()
     vec3.orthonormalize(up, forward)
@@ -274,10 +274,10 @@ export default class RaycastAnchorHead extends RaycastBase {
    */
   private computeCervicalLink(
     deviceCenterToWorld: mat4,
-    deviceCenterInDeviceSpace: vec3,
+    deviceCenterInDeviceSpace: vec3
   ): vec3 {
     const cervicalLinkInDeviceSpace = deviceCenterInDeviceSpace.add(
-      this.config.cervicalLinkOffsetInDeviceSpace,
+      this.config.cervicalLinkOffsetInDeviceSpace
     )
     return deviceCenterToWorld.multiplyPoint(cervicalLinkInDeviceSpace)
   }
@@ -296,14 +296,14 @@ export default class RaycastAnchorHead extends RaycastBase {
    */
   private computeTrasformToWorldFromSituationBasedSpace(
     deviceCenterToWorld: mat4,
-    cervicalLinkInWorld: vec3,
+    cervicalLinkInWorld: vec3
   ) {
     let up = vec3.zero()
     if (this.config.situationSpaceUp === situationSpaceUpEnum.WORLD_UP) {
       up = vec3.up()
     } else {
       const deviceUpwardInWorld = deviceCenterToWorld.multiplyDirection(
-        vec3.up(),
+        vec3.up()
       )
       up = deviceUpwardInWorld
     }
@@ -316,7 +316,7 @@ export default class RaycastAnchorHead extends RaycastBase {
       forward = vec3.forward()
     } else {
       const deviceForwardInWorld = deviceCenterToWorld.multiplyDirection(
-        vec3.forward(),
+        vec3.forward()
       )
       forward = deviceForwardInWorld
     }
@@ -325,7 +325,7 @@ export default class RaycastAnchorHead extends RaycastBase {
       this.createTransformToWorldFromSituationBasedSpace(
         up,
         forward,
-        cervicalLinkInWorld,
+        cervicalLinkInWorld
       )
 
     return toWorldFromSituationSpace
@@ -341,10 +341,10 @@ export default class RaycastAnchorHead extends RaycastBase {
         ? -this.config.epauletOffsetInSituationSpace.x
         : this.config.epauletOffsetInSituationSpace.x,
       this.config.epauletOffsetInSituationSpace.y,
-      this.config.epauletOffsetInSituationSpace.z,
+      this.config.epauletOffsetInSituationSpace.z
     )
     const epauletInSituation = cervicalLinkInSituation.add(
-      epauletOffsetInSituationSpace,
+      epauletOffsetInSituationSpace
     )
     return toWorldFromSituationSpace.multiplyPoint(epauletInSituation)
   }
@@ -352,12 +352,12 @@ export default class RaycastAnchorHead extends RaycastBase {
   private applyXRotation(
     vector: vec3,
     angleRad: number,
-    toWorldFromSituationSpace: mat4,
+    toWorldFromSituationSpace: mat4
   ): vec3 {
     const vector4d = new vec4(vector.x, vector.y, vector.z, 1)
 
     const situSpaceRight = toWorldFromSituationSpace.multiplyDirection(
-      vec3.right(),
+      vec3.right()
     )
 
     const rotQuat = quat.angleAxis(angleRad, situSpaceRight)
@@ -369,7 +369,7 @@ export default class RaycastAnchorHead extends RaycastBase {
   private applyYRotation(
     vector: vec3,
     angleRad: number,
-    handType: HandType,
+    handType: HandType
   ): vec3 {
     const vector4d = new vec4(vector.x, vector.y, vector.z, 1)
 
@@ -384,7 +384,7 @@ export default class RaycastAnchorHead extends RaycastBase {
   private determineHandPitchInRadians(
     wrist: vec3 | null,
     index: vec3 | null,
-    middle: vec3 | null,
+    middle: vec3 | null
   ): number {
     if (!wrist || !index || !middle) {
       return 0
@@ -393,19 +393,19 @@ export default class RaycastAnchorHead extends RaycastBase {
     const wristToMiddle = middle.sub(wrist)
     const forward = wristToIndex.add(wristToMiddle)
     const forwardHoriz = Math.sqrt(
-      forward.x * forward.x + forward.z * forward.z,
+      forward.x * forward.x + forward.z * forward.z
     )
     return Math.atan2(forward.y, forwardHoriz)
   }
 
   private determineGazePitchInRadians(
-    rayAlgorithmData: RayAlgorithmData,
+    rayAlgorithmData: RayAlgorithmData
   ): number {
     const forward = rayAlgorithmData.deviceCenterToWorld.multiplyDirection(
-      vec3.back(),
+      vec3.back()
     )
     const forwardHoriz = Math.sqrt(
-      forward.x * forward.x + forward.z * forward.z,
+      forward.x * forward.x + forward.z * forward.z
     )
     return Math.atan2(forward.y, forwardHoriz)
   }
@@ -413,12 +413,12 @@ export default class RaycastAnchorHead extends RaycastBase {
   private determineLowHighRatio(
     pitchRad: number,
     lowThresholdRad: number,
-    highThresholdRad: number,
+    highThresholdRad: number
   ): number {
     return MathUtils.clamp(
       MathUtils.remap(pitchRad, lowThresholdRad, highThresholdRad, 0, 1),
       0,
-      1,
+      1
     )
   }
 
@@ -427,12 +427,12 @@ export default class RaycastAnchorHead extends RaycastBase {
     lowThreshold: number,
     highThreshold: number,
     pointA: vec3,
-    pointB: vec3,
+    pointB: vec3
   ): vec3 {
     const lowHighRatio = this.determineLowHighRatio(
       handPitch,
       lowThreshold,
-      highThreshold,
+      highThreshold
     )
     return interpolateVec3(pointA, pointB, lowHighRatio)
   }
@@ -440,33 +440,33 @@ export default class RaycastAnchorHead extends RaycastBase {
   private applyTargetingHeightControl(
     farDirectionStartPoint: vec3,
     rayAlgorithmData: RayAlgorithmData,
-    toWorldFromSituationSpace: mat4,
+    toWorldFromSituationSpace: mat4
   ): vec3 {
     const hipOffsetFromCervicalLinkInSituationSpace = new vec3(
       0,
       this.config.hipLevelYOffsetFromCervicalLinkInSituationSpace,
-      0,
+      0
     )
     const haloOffsetFromCervicalLinkInSituationSpace = new vec3(
       0,
       this.config.haloLevelYOffsetFromCervicalLinkInSituationSpace,
-      0,
+      0
     )
 
     const hipOffsetFromCervicalLinkInWorld =
       toWorldFromSituationSpace.multiplyDirection(
-        hipOffsetFromCervicalLinkInSituationSpace,
+        hipOffsetFromCervicalLinkInSituationSpace
       )
     const haloOffsetFromCervicalLinkInWorld =
       toWorldFromSituationSpace.multiplyDirection(
-        haloOffsetFromCervicalLinkInSituationSpace,
+        haloOffsetFromCervicalLinkInSituationSpace
       )
 
     const farDirectionStartPointHipLevel = farDirectionStartPoint.add(
-      hipOffsetFromCervicalLinkInWorld,
+      hipOffsetFromCervicalLinkInWorld
     )
     const farDirectionStartPointHaloLevel = farDirectionStartPoint.add(
-      haloOffsetFromCervicalLinkInWorld,
+      haloOffsetFromCervicalLinkInWorld
     )
 
     let pitchRad = 0
@@ -480,7 +480,7 @@ export default class RaycastAnchorHead extends RaycastBase {
       pitchRad = this.determineHandPitchInRadians(
         rayAlgorithmData.wrist,
         rayAlgorithmData.index,
-        rayAlgorithmData.mid,
+        rayAlgorithmData.mid
       )
       upperThresholdPairHighRad =
         MathUtils.RadToDeg * this.config.handPitchUpperThresholdPairHighDeg
@@ -519,7 +519,7 @@ export default class RaycastAnchorHead extends RaycastBase {
         upperThresholdPairLowRad,
         upperThresholdPairHighRad,
         farDirectionStartPoint,
-        farDirectionStartPointHipLevel,
+        farDirectionStartPointHipLevel
       )
     } else {
       farDirectionStartPointUpdated = this.interpolateFarDirectionStartPoint(
@@ -527,7 +527,7 @@ export default class RaycastAnchorHead extends RaycastBase {
         lowerThresholdPairLowRad,
         lowerThresholdPairHighRad,
         farDirectionStartPointHaloLevel,
-        farDirectionStartPoint,
+        farDirectionStartPoint
       )
     }
 
@@ -557,13 +557,13 @@ export default class RaycastAnchorHead extends RaycastBase {
 
     const cervicalLinkInWorld = this.computeCervicalLink(
       data.deviceCenterToWorld,
-      deviceCenterInDeviceSpace,
+      deviceCenterInDeviceSpace
     )
 
     const toWorldFromSituationSpace =
       this.computeTrasformToWorldFromSituationBasedSpace(
         data.deviceCenterToWorld,
-        cervicalLinkInWorld,
+        cervicalLinkInWorld
       )
 
     let farDirectionStartPoint = vec3.zero()
@@ -580,8 +580,8 @@ export default class RaycastAnchorHead extends RaycastBase {
         .uniformScale(this.config.epauletWeight)
         .add(
           cervicalLinkInWorld.uniformScale(
-            Math.max(1 - this.config.epauletWeight, 0),
-          ),
+            Math.max(1 - this.config.epauletWeight, 0)
+          )
         )
     }
 
@@ -589,7 +589,7 @@ export default class RaycastAnchorHead extends RaycastBase {
       farDirectionStartPoint = this.applyTargetingHeightControl(
         farDirectionStartPoint,
         data,
-        toWorldFromSituationSpace,
+        toWorldFromSituationSpace
       )
     }
 
@@ -600,8 +600,8 @@ export default class RaycastAnchorHead extends RaycastBase {
 
     let targetingRay = farTargetingRay.add(
       closeTargetingRay.uniformScale(
-        this.config.wristAmplificationForAnchorHead,
-      ),
+        this.config.wristAmplificationForAnchorHead
+      )
     )
 
     if (this.rgbIrTransitionJumpSuppressor) {
@@ -613,7 +613,7 @@ export default class RaycastAnchorHead extends RaycastBase {
 
     let smoothTargetingRay = this.directionOneEuroFilter.filter(
       targetingRay,
-      getTime(),
+      getTime()
     )
 
     let filteredLocus = this.locusOneEuroFilter.filter(locus, getTime())
@@ -622,11 +622,11 @@ export default class RaycastAnchorHead extends RaycastBase {
       this.pinchJumpSuppressor.updateState(
         this.pinchJumpSuppressor.knuckleSmoothingSpace === "DeviceCenter"
           ? data.deviceCenterToWorld.inverse()
-          : data.cameraToWorld.inverse(),
+          : data.cameraToWorld.inverse()
       )
       const rayData = this.pinchJumpSuppressor.applySuppression(
         smoothTargetingRay,
-        filteredLocus,
+        filteredLocus
       )
       smoothTargetingRay = rayData.direction
       filteredLocus = rayData.locus
@@ -636,7 +636,7 @@ export default class RaycastAnchorHead extends RaycastBase {
       this.irInteractionTransitionStrategy?.computeXRotationInRadians(
         this.determineGazePitchInRadians(data),
         toWorldFromSituationSpace,
-        filteredLocus,
+        filteredLocus
       ) ?? 0
 
     let normalizedDirection = smoothTargetingRay.normalize()
@@ -644,10 +644,10 @@ export default class RaycastAnchorHead extends RaycastBase {
       this.applyXRotation(
         normalizedDirection,
         this.extraXRotationRad + irInteractionXRotationInRadians,
-        toWorldFromSituationSpace,
+        toWorldFromSituationSpace
       ).normalize(),
       this.extraYRotationRad,
-      this.hand.handType,
+      this.hand.handType
     ).normalize()
 
     return {

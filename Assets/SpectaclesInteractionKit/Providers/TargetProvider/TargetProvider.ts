@@ -89,11 +89,11 @@ export default abstract class TargetProvider {
     hits: RayCastHit[],
     targetingMode: TargetingMode,
     getInteractableByCollider: (
-      collider: ColliderComponent,
+      collider: ColliderComponent
     ) => Interactable | null,
     offset = 0,
     camera: CameraProvider | null = null,
-    allowOutOfFovInteraction = false,
+    allowOutOfFovInteraction = true
   ): InteractableHitInfo | null {
     const hitInfos: InteractableHitInfo[] = []
     for (const hit of hits) {
@@ -143,10 +143,10 @@ export default abstract class TargetProvider {
    * The nearest deeply nested interactable, is the latest descendant of a list of
    * interactables, when they are ordered by distance.
    * @param hitInfos - list of hits
-   * @returns - the most deeply nested interactable of the nearest interactable
+   * @returns - the nearest deeply nested interactable
    */
   static getNearestDeeplyNestedInteractable(
-    hitInfos: InteractableHitInfo[],
+    hitInfos: InteractableHitInfo[]
   ): InteractableHitInfo | null {
     hitInfos.sort((hitA, hitB) => {
       return hitA.hit.distance - hitB.hit.distance
@@ -159,10 +159,12 @@ export default abstract class TargetProvider {
         targetHitInfo === null ||
         isDescendantOf(
           currentHitInfo.interactable.sceneObject,
-          targetHitInfo.interactable.sceneObject,
+          targetHitInfo.interactable.sceneObject
         )
       ) {
         targetHitInfo = currentHitInfo
+      } else {
+        break
       }
     }
 
@@ -172,17 +174,17 @@ export default abstract class TargetProvider {
   protected getInteractableHitFromRayCast(
     hits: RayCastHit[],
     offset = 0,
-    allowOutOfFovInteraction = false,
+    allowOutOfFovInteraction = true
   ): InteractableHitInfo | null {
     return TargetProvider.getInteractableHitFromRayCast(
       hits,
       this.targetingMode,
       this.interactionManager.getInteractableByCollider.bind(
-        this.interactionManager,
+        this.interactionManager
       ),
       offset,
       this.camera,
-      allowOutOfFovInteraction,
+      allowOutOfFovInteraction
     )
   }
 }

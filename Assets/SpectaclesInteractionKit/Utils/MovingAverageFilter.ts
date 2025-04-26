@@ -15,7 +15,7 @@ export class MovingAverageFilter<T> implements Filter<T> {
   constructor(
     private windowLength: number,
     private zero: () => T,
-    private average: (samples: T[]) => T,
+    private average: (samples: T[]) => T
   ) {
     this.clear()
   }

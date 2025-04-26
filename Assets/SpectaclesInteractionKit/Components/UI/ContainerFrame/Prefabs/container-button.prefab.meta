@@ -24,10 +24,6 @@
     targetingMode: true
     enableInstantDrag: true
     allowMultipleInteractors: true
-    enablePokeDirectionality: true
-    acceptableXDirections: true
-    acceptableYDirections: true
-    acceptableZDirections: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -35,19 +31,30 @@
       targetingMode: !<float> 3.000000
       enableInstantDrag: false
       allowMultipleInteractors: true
-      enablePokeDirectionality: false
-      acceptableXDirections: !<float> 3.000000
-      acceptableYDirections: !<float> 3.000000
-      acceptableZDirections: !<float> 3.000000
   ScriptTypes:
     "":
       {}
-- !<ObjectPrefab/7b3b6619-8195-4ae1-a34f-6ae2eeff8be7>
-  PackagePath: ""
-  objects:
-    - !<own> b5a180a0-ec8e-41ec-828d-89933669fa3e
-  LazyLoading: false
-  RetainAssets: true
+- !<ScriptComponent/4a3a8457-2291-4321-a134-11bfb383af25>
+  PrefabRemaps:
+    []
+  Name: PinchButton
+  Enabled: true
+  ScriptAsset: !<reference> a54c5722-d3fb-4aa5-97ff-f7425978bc59
+  ScriptInputsDefault:
+    editEventCallbacks: true
+    customFunctionForOnButtonPinched: true
+    onButtonPinchedFunctionNames: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      editEventCallbacks: false
+      customFunctionForOnButtonPinched: !<reference.ScriptComponent> 00000000-0000-0000-0000-000000000000
+      onButtonPinchedFunctionNames: !<string[]>
+        []
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/b5a180a0-ec8e-41ec-828d-89933669fa3e>
   PrefabRemaps:
     []
@@ -64,6 +71,13 @@
   Components:
     - !<own> dc242484-c409-4069-8fa9-2e5f7a33927a
     - !<own> 46f82acc-e3fc-4601-a6e7-3726a286ae5f
+    - !<own> 4a3a8457-2291-4321-a134-11bfb383af25
+- !<ObjectPrefab/d828f635-4399-43ff-baa0-8d3898f784ae>
+  PackagePath: ""
+  objects:
+    - !<own> b5a180a0-ec8e-41ec-828d-89933669fa3e
+  LazyLoading: false
+  RetainAssets: true
 - !<RenderMeshVisual/dc242484-c409-4069-8fa9-2e5f7a33927a>
   PrefabRemaps:
     []
@@ -90,5 +104,5 @@
     - 2ee0e86b-dbc4-487a-a609-ad8de51ebcba: dc242484-c409-4069-8fa9-2e5f7a33927a
     - 315f513f-3522-482b-900a-40414b06ce36: b5a180a0-ec8e-41ec-828d-89933669fa3e
     - 353478e5-0c7a-4db7-813e-c433bb342409: 46f82acc-e3fc-4601-a6e7-3726a286ae5f
-    - a9f5baf8-1c9a-4304-a456-33d2590c3fc6: 7b3b6619-8195-4ae1-a34f-6ae2eeff8be7
-  SourceState: !<own> 7b3b6619-8195-4ae1-a34f-6ae2eeff8be7
+    - 661b3426-241f-4b8e-9131-52e18ae58b2f: 4a3a8457-2291-4321-a134-11bfb383af25
+  SourceState: !<own> d828f635-4399-43ff-baa0-8d3898f784ae

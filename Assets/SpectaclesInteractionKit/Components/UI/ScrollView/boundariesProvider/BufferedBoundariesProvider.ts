@@ -13,7 +13,7 @@ export class BufferedBoundariesProvider extends BoundariesProvider {
    */
   constructor(
     readonly toBuffer: BoundariesProvider,
-    readonly initialBuffer: Rect,
+    readonly initialBuffer: Rect
   ) {
     super()
 
@@ -40,7 +40,7 @@ export class BufferedBoundariesProvider extends BoundariesProvider {
       this.toBuffer.boundaries.left - this.buffer.left,
       this.toBuffer.boundaries.right + this.buffer.right,
       this.toBuffer.boundaries.bottom - this.buffer.bottom,
-      this.toBuffer.boundaries.top + this.buffer.top,
+      this.toBuffer.boundaries.top + this.buffer.top
     )
   }
 }

@@ -32,17 +32,14 @@ export type RaycastType =
 export enum FieldTargetingMode {
   FarField,
   NearField,
-  Direct,
   BehindNearField,
 }
 
+const TAG = "HandInteractor"
 const HANDUI_INTERACTION_DISTANCE_THRESHOLD_CM = 15
 
 // The threshold to reject a near field interaction (the default hand ray must be within a 45 degree angle to the plane's normal).
 const NEAR_FIELD_ANGLE_THRESHOLD_RADIAN = Math.PI / 4
-
-// The minimum pinch strength required to trigger a pinch instead of a poke during direct targeting.
-const MINIMUM_PINCH_STRENGTH = 0.2
 
 /**
  * This class handles hand interactions within the Spectacles Interaction Kit. It provides various configurations for hand types and raycast types.
@@ -56,7 +53,7 @@ export class HandInteractor extends BaseInteractor {
     new ComboBoxWidget([
       new ComboBoxItem("Left", "left"),
       new ComboBoxItem("Right", "right"),
-    ]),
+    ])
   )
   private handType: string = "right"
   @input
@@ -66,31 +63,36 @@ export class HandInteractor extends BaseInteractor {
       new ComboBoxItem("LegacySingleCamera", "LegacySingleCamera"),
       new ComboBoxItem("AnchorHead", "AnchorHead"),
       new ComboBoxItem("Proxy", "Proxy"),
-    ]),
+    ])
   )
   @hint("Forwards the TargetingData received from LensCore's Gesture Module")
   private raycastAlgorithm: string = "Proxy"
   @input
   @hint(
-    "Forces the usage of Poke targeting when interacting near the nondominant hand's palm.",
+    "Forces the usage of Poke targeting when interacting near the nondominant hand's palm."
   )
   private forcePokeOnNonDominantPalmProximity: boolean = false
 
   @input
   @hint(
-    "The radius around the midpoint of the index/thumb to target Interactables.",
+    "The radius around the midpoint of the index/thumb to target Interactables."
   )
   private directColliderEnterRadius: number = 1
 
   @input
   @hint(
-    "The radius around the midpoint of the index/thumb to de-target Interactables (for bistable thresholding).",
+    "The radius around the midpoint of the index/thumb to de-target Interactables (for bistable thresholding)."
   )
   private directColliderExitRadius: number = 1.5
 
   @input
   private directDragThreshold: number = 3.0
 
+  @input
+  @hint(
+    "If true far field interactions will be disable when your hand is not in an interacting pose."
+  )
+  private filterBasedOnIntent: boolean = false
   @ui.group_end
   protected handProvider: HandInputData = HandInputData.getInstance()
 
@@ -140,13 +142,13 @@ export class HandInteractor extends BaseInteractor {
         },
         spherecastRadii: this.spherecastRadii,
         spherecastDistanceThresholds: this.spherecastDistanceThresholds,
-      },
+      }
     )
     this.indirectDragProvider = new DragProvider(this.indirectDragThreshold)
 
     if (this.directColliderEnterRadius >= this.directColliderExitRadius) {
       throw Error(
-        `The direct collider enter radius should be less than the exit radius for bistable threshold behavior.`,
+        `The direct collider enter radius should be less than the exit radius for bistable threshold behavior.`
       )
     }
 
@@ -160,7 +162,7 @@ export class HandInteractor extends BaseInteractor {
         debugEnabled: this.drawDebug,
         colliderEnterRadius: this.directColliderEnterRadius,
         colliderExitRadius: this.directColliderExitRadius,
-      },
+      }
     )
     this.directDragProvider = new DragProvider(this.directDragThreshold)
 
@@ -256,8 +258,6 @@ export class HandInteractor extends BaseInteractor {
     super.updateState()
     this.updateTarget()
     this.updateDragVector()
-
-    this.processTriggerEvents()
   }
 
   protected override clearDragProviders(): void {
@@ -324,10 +324,7 @@ export class HandInteractor extends BaseInteractor {
       return null
     }
 
-    if (
-      this.fieldTargetingMode === FieldTargetingMode.NearField ||
-      this.fieldTargetingMode === FieldTargetingMode.Direct
-    ) {
+    if (this.fieldTargetingMode === FieldTargetingMode.NearField) {
       return (
         1 -
         this.currentInteractionPlane.projectPoint(this.hand.indexTip.position)
@@ -345,7 +342,12 @@ export class HandInteractor extends BaseInteractor {
   }
 
   isTargeting(): boolean {
-    return this.hand?.isInTargetingPose() ?? false
+    return (
+      (this.hand?.isInTargetingPose() &&
+        (!this.filterBasedOnIntent ||
+          this.hand?.targetingData.intendsToTarget)) ??
+      false
+    )
   }
 
   /**
@@ -353,7 +355,11 @@ export class HandInteractor extends BaseInteractor {
    */
   isActive(): boolean {
     return (
-      this.enabled && (this.hand?.enabled ?? false) && !this.hand.isPhoneInHand
+      this.enabled &&
+      (this.hand?.enabled ?? false) &&
+      (!this.filterBasedOnIntent ||
+        this.activeTargetProvider !== this.indirectTargetProvider ||
+        this.isTargeting())
     )
   }
 
@@ -371,10 +377,6 @@ export class HandInteractor extends BaseInteractor {
    */
   isFarField(): boolean {
     return this.fieldTargetingMode === FieldTargetingMode.FarField
-  }
-
-  isWithinDirectZone(): boolean {
-    return this.fieldTargetingMode === FieldTargetingMode.Direct
   }
 
   protected clearCurrentHitInfo(): void {
@@ -438,34 +440,13 @@ export class HandInteractor extends BaseInteractor {
         } else if (this.directTargetProvider?.hasTarget()) {
           this.activeTargetProvider = this.directTargetProvider
           this.dragProvider = this.directDragProvider
-        } else if (this.hand.targetingData?.intendsToTarget) {
-          if (
-            this.currentInteractionPlane &&
-            this.currentInteractionPlane.projectPoint(
-              this.hand.indexTip.position,
-            ).isWithinDirectZone
-          ) {
-            this.activeTargetProvider =
-              this.hand.getPinchStrength() >= MINIMUM_PINCH_STRENGTH
-                ? this.directTargetProvider
-                : this.pokeTargetProvider
-            this.dragProvider = this.directDragProvider
-          } else {
-            this.activeTargetProvider = this.indirectTargetProvider
-            // During a near field raycast, use direct drag threshold.
-            this.dragProvider =
-              this.fieldTargetingMode === FieldTargetingMode.FarField
-                ? this.indirectDragProvider
-                : this.directDragProvider
-          }
-        }
-        // If the hand is not intending to raycast target, choose the more likely of the collider target providers.
-        else {
-          this.activeTargetProvider =
-            this.hand.getPinchStrength() >= MINIMUM_PINCH_STRENGTH
-              ? this.directTargetProvider
-              : this.pokeTargetProvider
-          this.dragProvider = this.directDragProvider
+        } else {
+          this.activeTargetProvider = this.indirectTargetProvider
+          // During a near field raycast, use direct drag threshold.
+          this.dragProvider =
+            this.fieldTargetingMode === FieldTargetingMode.FarField
+              ? this.indirectDragProvider
+              : this.directDragProvider
         }
       }
     }
@@ -591,18 +572,14 @@ export class HandInteractor extends BaseInteractor {
     const indexProjection =
       this._currentInteractionPlane.projectPoint(indexPoint)
     const isIndexInBehindZone = indexProjection.isWithinBehindZone
-    const isIndexInDirectZone = indexProjection.isWithinDirectZone
 
-    if (isIndexInBehindZone) {
-      return FieldTargetingMode.BehindNearField
-    } else if (isIndexInDirectZone) {
-      return FieldTargetingMode.Direct
-    } else {
-      return FieldTargetingMode.NearField
-    }
+    return isIndexInBehindZone
+      ? FieldTargetingMode.BehindNearField
+      : FieldTargetingMode.NearField
   }
 
   private onDestroy() {
+    this.release()
     this.directTargetProvider?.destroy()
     this.indirectTargetProvider?.destroy()
     this.pokeTargetProvider?.destroy()

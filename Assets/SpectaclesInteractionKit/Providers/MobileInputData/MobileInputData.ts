@@ -4,11 +4,11 @@ import {
   OneEuroFilterVec3,
 } from "../../Utils/OneEuroFilter"
 
-import {Singleton} from "../../Decorators/Singleton"
 import {AnimationManager} from "../../Utils/animate"
 import Event from "../../Utils/Event"
+import MotionControllerProvider from "../HandInputData/GestureProvider/MotionControllerProvider"
 import NativeLogger from "../../Utils/NativeLogger"
-import MotionControllerProvider from "./MotionControllerProvider"
+import {Singleton} from "../../Decorators/Singleton"
 
 const TAG = "MobileInputData"
 

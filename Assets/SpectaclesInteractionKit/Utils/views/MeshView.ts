@@ -87,7 +87,7 @@ export default class MeshView extends View<MeshViewConfig> implements Spatial {
       // otherwise, set the alpha directly
       this.component.mainPass.baseColor = color.withAlpha(
         this.component.mainPass.baseColor,
-        a,
+        a
       )
     }
   }
@@ -95,7 +95,7 @@ export default class MeshView extends View<MeshViewConfig> implements Spatial {
   constructor(config: MeshViewConfig) {
     super(config)
     this.component = this.container.createComponent(
-      "Component.RenderMeshVisual",
+      "Component.RenderMeshVisual"
     )
 
     let material
