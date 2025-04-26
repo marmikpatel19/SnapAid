@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import requests
 from typing import List, Optional
 from pydantic import BaseModel
+import math
 
 app = FastAPI()
 
@@ -15,6 +16,18 @@ app.add_middleware(
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
+
+def haversine_distance(lat1, lon1, lat2, lon2):
+    R = 6371  # Earth radius in kilometers
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+
+    a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlambda/2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+    return R * c  # Distance in kilometers
 
 class HealthcareFacility(BaseModel):
     name: str
@@ -81,7 +94,7 @@ async def get_healthcare_facilities(
             facility_lon = geom.get("x")
             
             # Basic distance approximation
-            dist = ((facility_lat - lat)**2 + (facility_lon - lon)**2) ** 0.5
+            dist = haversine_distance(lat, lon, facility_lat, facility_lon) * 0.621371
             
             # Use the correct field names from the ArcGIS response
             facility_name = attr.get("FACNAME", "Unknown Facility")
