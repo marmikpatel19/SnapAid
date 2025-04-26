@@ -13,6 +13,8 @@ export class VisionOpenAI extends BaseScriptComponent {
   @input LLM_analyse: Text;
 
   apiKey: string = "REMOVED-API-KEY";
+  geminiApiKey: string = "REMOVED-GEMINI-KEY";
+  geminiApiEndpoint: string = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 
   // Remote service module for fetching data
   private remoteServiceModule: RemoteServiceModule = require("LensStudio:RemoteServiceModule");
@@ -66,62 +68,112 @@ export class VisionOpenAI extends BaseScriptComponent {
       const base64Image = await this.encodeTextureToBase64(texture);
 
       const requestPayload = {
-        model: "gpt-4o-mini",
-        messages: [
+        contents: [
           {
-            role: "system",
-            content:
-              "You are a helpful AI assistant that works for Snapchat that has access to the view that the user is looking at using Augmented Reality Glasses." +
-              " The user is asking for help with the following image and text. Keep it short like under 30 words. Be a little funny and keep it positive.",
-          },
-          {
-            role: "user",
-            content: [
-              { type: "text", text: this.textInput.text },
+            parts: [
               {
-                type: "image_url",
-                image_url: {
-                  url: `data:image/jpeg;base64,${base64Image}`,
-                },
+                text: "You are a helpful AI assistant that works for Snapchat that has access to the view that the user is looking at using Augmented Reality Glasses. The user is asking for help with the following image and text. Keep it short like under 30 words. Be a little funny and keep it positive."
               },
-            ],
-          },
+              {
+                text: this.textInput.text
+              },
+              {
+                inline_data: {
+                  mime_type: "image/jpeg",
+                  data: base64Image
+                }
+              }
+            ]
+          }
         ],
+        generation_config: {
+          temperature: 0.2,
+          max_output_tokens: 100,
+          top_p: 0.95,
+          top_k: 40,
+          response_mime_type: "text/plain"
+        },
+        safety_settings: [
+          {
+            category: "HARM_CATEGORY_HARASSMENT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          },
+          {
+            category: "HARM_CATEGORY_HATE_SPEECH",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          },
+          {
+            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          },
+          {
+            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          }
+        ]
       };
+      const fullUrl = `${this.geminiApiEndpoint}?key=${this.geminiApiKey}`;
+
 
       const request = new Request(
-        "https://api.openai.com/v1/chat/completions",
+        fullUrl,
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${this.apiKey}`,
+            "Content-Type": "application/json"
           },
           body: JSON.stringify(requestPayload),
         }
       );
+
       // More about the fetch API: https://developers.snap.com/spectacles/about-spectacles-features/apis/fetch
       let response = await this.remoteServiceModule.fetch(request);
       if (response.status === 200) {
         let responseData = await response.json();
-        this.textOutput.text = responseData.choices[0].message.content;
-        
+        let responseText;
+        try {
+          // First try standard response format
+          if (responseData.candidates && 
+              responseData.candidates[0] && 
+              responseData.candidates[0].content && 
+              responseData.candidates[0].content.parts && 
+              responseData.candidates[0].content.parts[0]) {
+            
+            responseText = responseData.candidates[0].content.parts[0].text;
+          } 
+          // Fallback to alternative formats if needed
+          else if (responseData.candidates && responseData.candidates[0] && responseData.candidates[0].content) {
+            // Try as direct text
+            responseText = responseData.candidates[0].content;
+          }
+          else {
+            // Last resort - convert whole response to string
+            responseText = JSON.stringify(responseData);
+          }
+        } catch (e) {
+          responseText = "Error parsing response: " + e;
+          print("Error extracting response text: " + e);
+        }
+
+        this.textOutput.text = responseText;
+
+        print("Response: " + responseText);
+
+
+
         // Show the full model response in the analysis text field
         if (this.LLM_analyse) {
           // Extract useful analysis information
-          const fullResponse = responseData.choices[0].message.content;
-          const modelUsed = requestPayload.model;
+          const fullResponse = responseText;
           const promptTokenEstimate = JSON.stringify(requestPayload).length / 4;
-          
-          this.LLM_analyse.text = `Analysis complete ✓\n\nModel: ${modelUsed}\nEstimated tokens: ~${promptTokenEstimate}\n\nFull response:\n${fullResponse}`;
+          this.LLM_analyse.text = `Analysis complete ✓\n\nModel: Gemini-1.5-flash\nEstimated tokens: ~${promptTokenEstimate}\n\nFull response:\n${fullResponse}`;
         }
         
-        print(responseData.choices[0].message.content);
 
         // Call TTS to generate and play speech from the response
         if (this.ttsComponent) {
           this.ttsComponent.generateAndPlaySpeech(
-            responseData.choices[0].message.content
+            responseText
           );
         }
       } else {
