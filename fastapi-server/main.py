@@ -7,6 +7,14 @@ import uuid
 import json
 from pydantic import BaseModel
 from math import radians, cos, sin, asin, sqrt
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env
+load_dotenv()
+
+# Now you can use it like this:
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 
 
 app = FastAPI()
@@ -159,6 +167,71 @@ async def find_restroom(req: LocationRequest):
 
     except Exception as e:
         return {"sessionId": session_id, "error": str(e)}
+
+
+def get_shelters_data(lat, lon):
+    """Fetch nearby shelters from Google Places API."""
+    search_query = "homeless shelter family shelter"
+    radius_meters = 10000  # Search within 10km
+
+    url = (
+        f"https://maps.googleapis.com/maps/api/place/nearbysearch/json"
+        f"?location={lat},{lon}"
+        f"&radius={radius_meters}"
+        f"&keyword={search_query}"
+        f"&key={GOOGLE_MAPS_API_KEY}"
+    )
+    
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        raise Exception(f"Google Places API error: {response.status_code} - {response.text}")
+
+@app.post("/find_shelter")
+async def find_shelter(req: LocationRequest):
+    session_id = str(uuid.uuid4())
+    try:
+        user_lat = req.latitude
+        user_lon = req.longitude
+
+        shelters_data = get_shelters_data(user_lat, user_lon)
+        closest_shelter = None
+        min_distance = float('inf')
+
+        for place in shelters_data.get('results', []):
+            loc = place.get('geometry', {}).get('location')
+            if loc:
+                lat = loc.get('lat')
+                lon = loc.get('lng')
+                distance = haversine(user_lon, user_lat, lon, lat)
+                if distance < min_distance:
+                    min_distance = distance
+                    closest_shelter = {
+                        "name": place.get('name', 'Unknown'),
+                        "address": place.get('vicinity', 'Unknown'),
+                        "location": {
+                            "latitude": lat,
+                            "longitude": lon
+                        },
+                        "distance_miles": round(distance, 2)
+                    }
+
+        if closest_shelter:
+            return {
+                "sessionId": session_id,
+                "nearestShelter": closest_shelter
+            }
+        else:
+            return {
+                "sessionId": session_id,
+                "message": "No shelters found nearby."
+            }
+
+    except Exception as e:
+        return {"sessionId": session_id, "error": str(e)}
+
+
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
