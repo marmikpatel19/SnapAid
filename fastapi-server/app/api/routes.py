@@ -1,13 +1,15 @@
+from typing import List
 import uuid
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
-from app.models.schemas import LocationRequest
+from app.models.schemas import HealthcareFacility, LocationRequest
 from app.services.pharmacy import get_easyvax_locations
 from app.services.restroom import get_restroom_data
 from app.utils.geo import get_zip_from_lat_long, haversine
+from app.services.medical import get_medical_care_locations
 
-router = APIRouter()
+router = APIRouter(prefix="/api", tags=["api"])
 
 @router.post("/find_pharmacy")
 async def find_pharmacy(req: LocationRequest):
@@ -90,7 +92,21 @@ async def find_restroom(req: LocationRequest):
 
     except Exception as e:
         return {"sessionId": session_id, "error": str(e)}
-        
+
+@router.get("/healthcare-facilities", response_model=List[HealthcareFacility])
+async def get_healthcare_facilities(
+    lat: float = Query(..., description="Latitude of the location"),
+    lon: float = Query(..., description="Longitude of the location"),
+    limit: int = Query(10, description="Maximum number of facilities to return")
+):
+    facilities = get_medical_care_locations(lat, lon, limit)
+    
+    if isinstance(facilities, dict) and "error" in facilities:
+        return {"error": facilities["error"]}
+    
+    # Convert to HealthcareFacility objects
+    return [HealthcareFacility(name=f["name"], type=f["type"], distance=f["distance"]) for f in facilities]
+
 @router.get("/")
 async def root():
     return {"message": "Welcome to the FastAPI server!"} 
