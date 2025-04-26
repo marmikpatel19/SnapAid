@@ -97,7 +97,7 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.358004, y: 0.034770, z: 0.111524}
+    position: {x: -0.026907, y: -0.037271, z: -0.015821}
     rotation: {x: 0.000000, y: -0.000000, z: 0.000000}
     scale: {x: 2.000000, y: 1.000000, z: 1.000000}
     hasSegmentScaleCompensation: false
@@ -200,7 +200,7 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.375205, y: -0.115677, z: -0.226906}
+    position: {x: -0.013336, y: -0.111188, z: -0.218964}
     rotation: {x: 0.000000, y: -0.000000, z: 0.000000}
     scale: {x: 2.000000, y: 1.000000, z: 1.000000}
     hasSegmentScaleCompensation: false
@@ -235,7 +235,7 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.374548, y: -0.039707, z: -0.262178}
+    position: {x: -0.019787, y: -0.067461, z: -0.328559}
     rotation: {x: 0.000000, y: -0.000000, z: 0.000000}
     scale: {x: 2.000000, y: 1.000000, z: 1.000000}
     hasSegmentScaleCompensation: false
@@ -288,8 +288,8 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.244919, y: 0.727880, z: 0.000000}
-    rotation: {x: -150.513351, y: 12.000415, z: -180.000000}
+    position: {x: 0.000000, y: 0.727880, z: 0.000000}
+    rotation: {x: -180.000000, y: 0.000000, z: 180.000000}
     scale: {x: 0.900000, y: 0.900000, z: 0.900000}
     hasSegmentScaleCompensation: false
   Children:
@@ -304,8 +304,8 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.244919, y: 0.727880, z: 0.000000}
-    rotation: {x: -150.517197, y: -13.284865, z: -180.000000}
+    position: {x: 0.000000, y: 0.727880, z: 0.000000}
+    rotation: {x: -180.000000, y: 0.000000, z: 180.000000}
     scale: {x: 0.900000, y: 0.900000, z: 0.900000}
     hasSegmentScaleCompensation: false
   Children:
@@ -431,8 +431,8 @@
   Enabled: true
   Layers: 1
   LocalTransform:
-    position: {x: -0.244919, y: 0.727880, z: 0.000000}
-    rotation: {x: -157.311432, y: -0.404987, z: -180.000000}
+    position: {x: 0.000000, y: 0.727880, z: 0.000000}
+    rotation: {x: -180.000000, y: 0.000000, z: 180.000000}
     scale: {x: 0.900000, y: 0.900000, z: 0.900000}
     hasSegmentScaleCompensation: false
   Children:

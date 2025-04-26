@@ -6,7 +6,7 @@
  */
 export function createCallback<T>(
   scriptComponent: ScriptComponent,
-  functionNames: string[],
+  functionNames: string[]
 ): (args: T) => void {
   if (scriptComponent === undefined) {
     return () => {}
@@ -14,7 +14,7 @@ export function createCallback<T>(
   return (args) => {
     functionNames.forEach((name) => {
       if ((scriptComponent as any)[name]) {
-        ;(scriptComponent as any)[name](args)
+        (scriptComponent as any)[name](args)
       }
     })
   }

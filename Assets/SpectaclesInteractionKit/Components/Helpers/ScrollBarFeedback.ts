@@ -1,9 +1,9 @@
 import animate, {CancelSet} from "../../Utils/animate"
 
-import {lerp} from "../../Utils/mathUtils"
-import {validate} from "../../Utils/validate"
 import {Interactable} from "../Interaction/Interactable/Interactable"
 import {ScrollBar} from "../UI/ScrollBar/ScrollBar"
+import {lerp} from "../../Utils/mathUtils"
+import {validate} from "../../Utils/validate"
 
 const BLENDSHAPE_NAME: string = "Size"
 const SCALE_TWEEN_DURATION: number = 0.2

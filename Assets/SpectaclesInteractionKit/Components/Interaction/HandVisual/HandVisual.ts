@@ -155,16 +155,12 @@ export class HandVisual extends BaseScriptComponent implements HandVisuals {
   private tipGlowMaterial!: Material
   @input
   @widget(new ColorWidget())
-  @hint("The color the glow will be when you are not pinching/poking")
-  private hoverColor!: vec4
+  @hint("The color the glow will be when you are not pinching")
+  private idleColor!: vec4
   @input
   @widget(new ColorWidget())
-  @hint("The color the glow will be when you are pinching/poking")
-  private triggerColor!: vec4
-  @input
-  @widget(new ColorWidget())
-  @hint("The color the glow will be when you are pinching/poking too far")
-  private behindColor!: vec4
+  @hint("The color the glow will be when you are pinching")
+  private pinchDownColor!: vec4
   @input
   @hint(
     "How close index finger of tapping hand has to be to tapped hand to initiate tap glow",
@@ -198,12 +194,12 @@ export class HandVisual extends BaseScriptComponent implements HandVisuals {
   @ui.group_start("Hand Mesh Materials")
   @input
   @hint(
-    "The material which will be create the default visual effect on the hand mesh",
+    "The material which will be create the default visual effect on the hand mesh"
   )
   private handOutlineMaterial: Material
   @input
   @hint(
-    "The material which will be create the occluder visual effect on the hand mesh",
+    "The material which will be create the occluder visual effect on the hand mesh"
   )
   private handOccluderMaterial: Material
   @ui.group_end
@@ -301,12 +297,12 @@ export class HandVisual extends BaseScriptComponent implements HandVisuals {
 
   private getJointSceneObject(
     targetSceneObjectName: string,
-    root: SceneObject,
+    root: SceneObject
   ) {
     const sceneObject = findSceneObjectByName(root, targetSceneObjectName)
     if (sceneObject === null) {
       throw new Error(
-        `${targetSceneObjectName} could not be found in children of SceneObject: ${this.root?.name}`,
+        `${targetSceneObjectName} could not be found in children of SceneObject: ${this.root?.name}`
       )
     }
     return sceneObject
@@ -319,7 +315,7 @@ export class HandVisual extends BaseScriptComponent implements HandVisuals {
     if (this.radialOcclusionView !== undefined) {
       this.radialOcclusionView.enabled = enabled
     }
-    this.handMesh.sceneObject.enabled = enabled
+    this.handMesh.enabled = enabled
   }
 
   onAwake(): void {
@@ -443,9 +439,8 @@ export class HandVisual extends BaseScriptComponent implements HandVisuals {
       handType: this.handType as HandType,
       unitPlaneMesh: this.unitPlaneMesh,
       tipGlowMaterial: this.tipGlowMaterial,
-      hoverColor: this.hoverColor,
-      triggerColor: this.triggerColor,
-      behindColor: this.behindColor,
+      idleColor: this.idleColor,
+      pinchDownColor: this.pinchDownColor,
       tapProximityThreshold: this.tapProximityThreshold,
       tapTexture: this.tapTexture,
       pinchTexture: this.pinchTexture,

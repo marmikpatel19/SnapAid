@@ -1,22 +1,22 @@
+import Event, {PublicApi, unsubscribe} from "../../../Utils/Event"
 import {
   Interactor,
   InteractorInputType,
   TargetingMode,
 } from "../../../Core/Interactor/Interactor"
-import Event, {PublicApi, unsubscribe} from "../../../Utils/Event"
 import {
   OneEuroFilterConfig,
   OneEuroFilterQuat,
   OneEuroFilterVec3,
 } from "../../../Utils/OneEuroFilter"
 
+import {Interactable} from "../Interactable/Interactable"
 import {InteractionManager} from "../../../Core/InteractionManager/InteractionManager"
 import {InteractorEvent} from "../../../Core/Interactor/InteractorEvent"
 import {MobileInteractor} from "../../../Core/MobileInteractor/MobileInteractor"
-import WorldCameraFinderProvider from "../../../Providers/CameraProvider/WorldCameraFinderProvider"
 import NativeLogger from "../../../Utils/NativeLogger"
+import WorldCameraFinderProvider from "../../../Providers/CameraProvider/WorldCameraFinderProvider"
 import {validate} from "../../../Utils/validate"
-import {Interactable} from "../Interactable/Interactable"
 
 export type TranslateEventArg = {
   interactable: Interactable

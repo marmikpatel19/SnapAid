@@ -21,17 +21,13 @@
   VersionMajor: 0
   VersionMinor: 0
   VersionPatch: 0
-  ComponentUid: f5ccc8e2-4e8d-4daa-b65b-e5a48b6e0ee8
+  ComponentUid: 4fbf2f59-1728-4e3f-a891-12c39838e945
   ExportUid: 00000000-0000-0000-0000-000000000000
   CurrentVisibility: Editable
   MaxVisibility: Editable
   ScriptInputsHidden:
-    acceptableXDirections: false
-    acceptableYDirections: false
-    acceptableZDirections: false
     allowMultipleInteractors: false
     enableInstantDrag: false
-    enablePokeDirectionality: false
     isScrollable: true
     targetingMode: false
   ScriptTypesHidden:
@@ -41,10 +37,6 @@
       isScrollable: false
       enableInstantDrag: false
       allowMultipleInteractors: true
-      enablePokeDirectionality: false
-      acceptableXDirections: !<float> 3.000000
-      acceptableYDirections: !<float> 3.000000
-      acceptableZDirections: !<float> 3.000000
   ScriptTypes:
     -
       {}
@@ -53,10 +45,5 @@
     - "// @input bool enableInstantDrag {\"hint\":\"Enable this to allow the Interactable to instantly be dragged on trigger rather than obeying the Interactor's drag threshold.\"}"
     - // @input bool isScrollable
     - // @input bool allowMultipleInteractors = true
-    - '// @ui {"widget":"separator"}'
-    - // @input bool enablePokeDirectionality
-    - '// @input float acceptableXDirections = 3 {"label":"X", "widget":"combobox", "values":[{"label":"None", "value":0}, {"label":"Right", "value":1}, {"label":"Left", "value":2}, {"label":"All", "value":3}], "showIf":"enablePokeDirectionality"}'
-    - '// @input float acceptableYDirections = 3 {"label":"Y", "widget":"combobox", "values":[{"label":"None", "value":0}, {"label":"Up", "value":1}, {"label":"Down", "value":2}, {"label":"All", "value":3}], "showIf":"enablePokeDirectionality"}'
-    - '// @input float acceptableZDirections = 3 {"label":"Z", "widget":"combobox", "values":[{"label":"None", "value":0}, {"label":"Forward", "value":1}, {"label":"Back", "value":2}, {"label":"All", "value":3}], "showIf":"enablePokeDirectionality"}'
   SvgIcon: ""
   DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000

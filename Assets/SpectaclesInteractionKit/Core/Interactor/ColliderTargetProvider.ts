@@ -22,12 +22,12 @@ export abstract class ColliderTargetProvider extends TargetProvider {
   protected interactor: BaseInteractor
   constructor(
     interactor: BaseInteractor,
-    protected config: ColliderTargetProviderConfig,
+    protected config: ColliderTargetProviderConfig
   ) {
     super()
     this.interactor = interactor
     this.ownerSceneObject = global.scene.createSceneObject(
-      "ColliderTargetProvider",
+      "ColliderTargetProvider"
     )
     this.ownerSceneObject.setParent(this.interactor.sceneObject)
   }
@@ -103,7 +103,7 @@ export abstract class ColliderTargetProvider extends TargetProvider {
     radius: number,
     onOverlapStay: ((eventArgs: OverlapStayEventArgs) => void) | null,
     onOverlapExit: ((eventArgs: OverlapExitEventArgs) => void) | null,
-    debugDrawEnabled: boolean,
+    debugDrawEnabled: boolean
   ): ColliderComponent {
     const collider = sceneObject.createComponent("Physics.ColliderComponent")
 
@@ -126,7 +126,7 @@ export abstract class ColliderTargetProvider extends TargetProvider {
 
   protected onColliderOverlapStay(
     event: OverlapEnterEventArgs,
-    allowOutOfFovInteraction = false,
+    allowOutOfFovInteraction = true
   ): void {
     if (this.config.shouldPreventTargetUpdate?.()) {
       return
@@ -160,7 +160,7 @@ export abstract class ColliderTargetProvider extends TargetProvider {
     this._currentInteractableHitInfo = this.getInteractableHitFromRayCast(
       hits,
       0,
-      allowOutOfFovInteraction,
+      allowOutOfFovInteraction
     )
 
     this.updateInteractionPlanesFromOverlap(event.currentOverlaps)

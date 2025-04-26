@@ -16,18 +16,6 @@ export type CircleVisualConfig = {
   textures: CircleVisualTextureConfig
 }
 
-export type CircleVisualMaterialParameters = {
-  maxAlpha: number
-  outlineAlpha: number
-  outlineOffset: number
-  circleSquishScale: number
-  isTriggering: boolean
-  useTexture: boolean
-  cursorTexture: Texture
-  handType: CursorMaterialHandType
-  multipleInteractorsActive: boolean
-}
-
 // To make the math of calculating angles easier to follow, the CursorMat graph uses -1 and 1 to represent the left/right hand.
 const enum CursorMaterialHandType {
   Left = -1,
@@ -61,7 +49,7 @@ export class CircleVisual {
   private visual = this.sceneObject.getComponent("Component.RenderMeshVisual")
 
   private billboardComponent = this.sceneObject.createComponent(
-    Billboard.getTypeName(),
+    Billboard.getTypeName()
   )
 
   constructor(private config: CircleVisualConfig) {
@@ -152,7 +140,7 @@ export class CircleVisual {
         this.visual.mainPass.outlineAlpha = MathUtils.lerp(
           initialAlpha,
           alpha,
-          t,
+          t
         )
       },
     })
@@ -184,7 +172,7 @@ export class CircleVisual {
         this.visual.mainPass.outlineOffset = MathUtils.lerp(
           initialOffset,
           offset,
-          t,
+          t
         )
       },
     })
@@ -416,19 +404,5 @@ export class CircleVisual {
    */
   get worldScale(): vec3 {
     return this.visual.getTransform().getWorldScale()
-  }
-
-  get materialParameters(): CircleVisualMaterialParameters {
-    return {
-      maxAlpha: this.visual.mainPass.maxAlpha,
-      outlineAlpha: this.visual.mainPass.outlineAlpha,
-      outlineOffset: this.visual.mainPass.outlineOffset,
-      circleSquishScale: this.visual.mainPass.circleSquishScale,
-      isTriggering: this.visual.mainPass.isTriggering,
-      useTexture: this.visual.mainPass.useTexture,
-      cursorTexture: this.visual.mainPass.cursorTexture,
-      handType: this.visual.mainPass.handType,
-      multipleInteractorsActive: this.visual.mainPass.multipleInteractorsActive,
-    }
   }
 }

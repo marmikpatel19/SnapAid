@@ -31,7 +31,7 @@ export default class RaycastAnchorVariableShoulder extends RaycastBase {
     return mat4.compose(
       this.camera.getWorldPosition(),
       levelRotation,
-      this.camera.getLocalScale(),
+      this.camera.getLocalScale()
     )
   }
 
@@ -48,20 +48,20 @@ export default class RaycastAnchorVariableShoulder extends RaycastBase {
       inverseLerp(
         ELBOW_LOCATION.y + ELBOW_TRACKED_RADIUS,
         ELBOW_LOCATION.y - ELBOW_TRACKED_RADIUS,
-        handElevationHeadset,
+        handElevationHeadset
       ),
       0,
-      1,
+      1
     )
 
     const lateralIntervalElbow = MathUtils.clamp(
       inverseLerp(
         ELBOW_LOCATION.x + ELBOW_TRACKED_RADIUS_HORIZONTAL,
         ELBOW_LOCATION.x - ELBOW_TRACKED_RADIUS_HORIZONTAL,
-        handLateralHeadset,
+        handLateralHeadset
       ),
       0,
-      1,
+      1
     )
 
     const lerpInvY = Math.abs(1 - elevationIntervalElbow ** 2)
@@ -72,8 +72,8 @@ export default class RaycastAnchorVariableShoulder extends RaycastBase {
         Math.cos(lerpInvX * Math.PI * -1) * ELBOW_RADIUS_HORIZONTAL,
         Math.cos(lerpInvY * Math.PI * -1) * ELBOW_RADIUS,
         Math.sin(lerpInvX * Math.PI * -1) * ELBOW_RADIUS +
-          Math.sin(lerpInvY * Math.PI * -1) * ELBOW_Z_OFFSET_SCALE,
-      ),
+          Math.sin(lerpInvY * Math.PI * -1) * ELBOW_Z_OFFSET_SCALE
+      )
     )
     return transformPoint(this.camera.getTransform(), variableElbowOffset)
   }
@@ -99,18 +99,18 @@ export default class RaycastAnchorVariableShoulder extends RaycastBase {
     const estimatedShoulder = this.estimateShoulderPosition(data.index!)
     const shoulder = this.shoulderOneEuroFilter.filter(
       estimatedShoulder,
-      getTime(),
+      getTime()
     )
 
     const shoulderTargetingRay = castAnchor.sub(shoulder)
     const wristTargetingRay = castAnchor.sub(data.wrist!)
     const targetingRay = shoulderTargetingRay.add(
-      wristTargetingRay.uniformScale(WRIST_AMPLIFICATION),
+      wristTargetingRay.uniformScale(WRIST_AMPLIFICATION)
     )
 
     const smoothTargetingRay = this.directionOneEuroFilter.filter(
       targetingRay,
-      getTime(),
+      getTime()
     )
 
     return {

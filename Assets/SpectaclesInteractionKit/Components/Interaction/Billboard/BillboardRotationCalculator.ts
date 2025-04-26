@@ -58,7 +58,7 @@ export default class BillboardRotationCalculator {
   // Returns the quaternion representing the rotation necessary for the target to align with the camera.
   private calculateRotationQuaternion(
     rotationRadians: number,
-    axisVector: vec3,
+    axisVector: vec3
   ): quat {
     let rotationQuaternion: quat = quat.angleAxis(rotationRadians, axisVector)
 
@@ -95,7 +95,7 @@ export default class BillboardRotationCalculator {
     axisVector: vec3,
     forwardVector: vec3,
     cameraVector: vec3,
-    originVector: vec3,
+    originVector: vec3
   ): number {
     let forwardVectorOnPlane = forwardVector.projectOnPlane(axisVector)
     let cameraVectorOnPlane = cameraVector.projectOnPlane(axisVector)
@@ -118,7 +118,7 @@ export default class BillboardRotationCalculator {
     axisVector: vec3,
     forwardVector: vec3,
     cameraVector: vec3,
-    originVector: vec3,
+    originVector: vec3
   ): quat {
     if (this.skipRotation()) {
       return quat.quatIdentity()
@@ -131,13 +131,13 @@ export default class BillboardRotationCalculator {
       axisVector,
       forwardVector,
       cameraVector,
-      originVector,
+      originVector
     )
     let rotationRadians = this.calculateAxisRotation(angle)
 
     let rotationQuaternion = this.calculateRotationQuaternion(
       rotationRadians,
-      axisVector,
+      axisVector
     )
 
     return rotationQuaternion
@@ -155,7 +155,7 @@ export default class BillboardRotationCalculator {
     axisVector: vec3,
     forwardVector: vec3,
     cameraVector: vec3,
-    originVector: vec3,
+    originVector: vec3
   ) {
     if (axisVector.dot(forwardVector) > ALMOST_ONE) {
       return quat.quatIdentity()
@@ -164,7 +164,7 @@ export default class BillboardRotationCalculator {
       axisVector,
       forwardVector,
       cameraVector,
-      originVector,
+      originVector
     )
 
     return this.axisEnabled

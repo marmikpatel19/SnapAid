@@ -80,7 +80,7 @@ export default class HeadlockRotationCalculator {
   private calculateRotationOffset(
     angle: number,
     axisVector: vec3,
-    positionVector: vec3,
+    positionVector: vec3
   ): vec3 {
     const rotationQuaternion = quat.angleAxis(angle, axisVector)
 
@@ -95,7 +95,7 @@ export default class HeadlockRotationCalculator {
       newPositionVector = vec3.lerp(
         positionVector,
         newPositionVector,
-        this.axisEasing * timeRatio,
+        this.axisEasing * timeRatio
       )
     }
     const rotationOffset = newPositionVector.sub(positionVector)
@@ -114,7 +114,7 @@ export default class HeadlockRotationCalculator {
     positionVector: vec3,
     originVector: vec3,
     forwardVector: vec3,
-    upVector?: vec3,
+    upVector?: vec3
   ): number {
     const positionVectorOnPlane = positionVector
       .projectOnPlane(axisVector)
@@ -131,11 +131,11 @@ export default class HeadlockRotationCalculator {
     if (this.axis === RotationAxis.Pitch && upVector !== undefined) {
       const forwardVectorOnXZ = new vec2(
         forwardVectorOnPlane.x,
-        forwardVectorOnPlane.z,
+        forwardVectorOnPlane.z
       ).normalize()
       const positionVectorOnXZ = new vec2(
         positionVectorOnPlane.x,
-        positionVectorOnPlane.z,
+        positionVectorOnPlane.z
       ).normalize()
 
       const sameDirection =
@@ -182,7 +182,7 @@ export default class HeadlockRotationCalculator {
     positionVector: vec3,
     originVector: vec3,
     forwardVector: vec3,
-    upVector?: vec3,
+    upVector?: vec3
   ): vec3 {
     if (this.skipRotation()) {
       return vec3.zero()
@@ -192,12 +192,12 @@ export default class HeadlockRotationCalculator {
       positionVector,
       originVector,
       forwardVector,
-      upVector,
+      upVector
     )
     const rotationOffset = this.calculateRotationOffset(
       angle,
       axisVector,
-      positionVector,
+      positionVector
     )
 
     return rotationOffset

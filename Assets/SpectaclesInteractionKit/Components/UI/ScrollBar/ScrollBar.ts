@@ -24,14 +24,14 @@ export class ScrollBar extends BaseScriptComponent {
 
   @input("Component.RenderMeshVisual")
   @hint(
-    "The mesh visual of the scroll bar, used to calculate the height offset that should be used to prevent the mesh from extending past the canvas. This mesh will also be disabled whenever setting this component to disabled.",
+    "The mesh visual of the scroll bar, used to calculate the height offset that should be used to prevent the mesh from extending past the canvas. This mesh will also be disabled whenever setting this component to disabled."
   )
   @allowUndefined
   private _scrollBarMeshVisual: RenderMeshVisual | null = null
 
   @input
   @hint(
-    "How far (in cm) the top edge of the ScrollBar mesh should sit from the edge of the canvas when at the top of the content.",
+    "How far (in cm) the top edge of the ScrollBar mesh should sit from the edge of the canvas when at the top of the content."
   )
   private _boundingHeightOffset: number = 0
 
@@ -47,7 +47,7 @@ export class ScrollBar extends BaseScriptComponent {
     this.scrollView = this.findScrollView()
     this.scrollViewSceneObject = this.scrollView.getSceneObject()
     this.scrollViewScreenTransform = this.scrollViewSceneObject.getComponent(
-      "Component.ScreenTransform",
+      "Component.ScreenTransform"
     )
 
     this.interactable = this.setupInteractable()
@@ -64,7 +64,7 @@ export class ScrollBar extends BaseScriptComponent {
 
   private setupInteractable() {
     const interactable = this.getSceneObject().getComponent(
-      Interactable.getTypeName(),
+      Interactable.getTypeName()
     )
 
     if (interactable === null) {
@@ -120,7 +120,7 @@ export class ScrollBar extends BaseScriptComponent {
       MathUtils.lerp(
         this.boundingHeight,
         -this.boundingHeight,
-        this.scrollPercentage,
+        this.scrollPercentage
       )
 
     this.transform.setLocalPosition(position)
@@ -154,7 +154,7 @@ export class ScrollBar extends BaseScriptComponent {
 
     if (boundingHeight <= 0) {
       this.log.e(
-        `Bounding height of the ScrollBar is negative. Reduce the boundingHeightOffset parameter for proper ScrollBar behavior.`,
+        `Bounding height of the ScrollBar is negative. Reduce the boundingHeightOffset parameter for proper ScrollBar behavior.`
       )
     }
 
@@ -251,7 +251,7 @@ export class ScrollBar extends BaseScriptComponent {
 
     if (children === null) {
       throw new Error(
-        "Sibling SceneObject with ScrollView component not found. Ensure that the ScrollView owner is a sibling of the ScrollBar owner.",
+        "Sibling SceneObject with ScrollView component not found. Ensure that the ScrollView owner is a sibling of the ScrollBar owner."
       )
     }
 
@@ -264,7 +264,7 @@ export class ScrollBar extends BaseScriptComponent {
     }
 
     throw new Error(
-      "Sibling SceneObject with ScrollView component not found. Ensure that the ScrollView owner is a sibling of the ScrollBar owner.",
+      "Sibling SceneObject with ScrollView component not found. Ensure that the ScrollView owner is a sibling of the ScrollBar owner."
     )
   }
 

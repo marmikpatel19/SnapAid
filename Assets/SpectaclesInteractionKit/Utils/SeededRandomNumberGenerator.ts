@@ -30,7 +30,7 @@ export class SeededRandomNumberGenerator {
     this.seed = seed ?? 0
     if (!Number.isInteger(this.seed)) {
       throw new Error(
-        `Illegal value: Non-Integer seed passed to SeededRandomNumberGenerator: ${this.seed}`,
+        `Illegal value: Non-Integer seed passed to SeededRandomNumberGenerator: ${this.seed}`
       )
     }
   }
@@ -87,11 +87,11 @@ export class SeededRandomNumberGenerator {
   public getRandomNumberArrayInRangeNoDuplicates(
     rangeMin: number,
     rangeMax: number,
-    numRandomNumbers: number,
+    numRandomNumbers: number
   ): number[] {
     if (rangeMin >= rangeMax) {
       throw new Error(
-        `Illegal arguments, rangeMin (${rangeMin}) cannot be >= rangeMax (${rangeMax})`,
+        `Illegal arguments, rangeMin (${rangeMin}) cannot be >= rangeMax (${rangeMax})`
       )
     }
 
@@ -99,7 +99,7 @@ export class SeededRandomNumberGenerator {
       throw new Error(
         `Illegal arguments, numRandomNumbers (${numRandomNumbers}) cannot be > rangeMax - rangeMin (${
           rangeMax - rangeMin
-        })`,
+        })`
       )
     }
 
@@ -152,7 +152,7 @@ export class SeededRandomNumberGenerator {
       minPoint.z > maxPoint.z
     ) {
       throw new Error(
-        "Illegal arguments, each component of minPoint cannot be greater than the corresponding component of maxPoint",
+        "Illegal arguments, each component of minPoint cannot be greater than the corresponding component of maxPoint"
       )
     }
 
@@ -161,21 +161,21 @@ export class SeededRandomNumberGenerator {
       1,
       0,
       maxPoint.x,
-      minPoint.x,
+      minPoint.x
     )
     const y = MathUtils.remap(
       this.randomRange(0, 1)(),
       1,
       0,
       maxPoint.y,
-      minPoint.y,
+      minPoint.y
     )
     const z = MathUtils.remap(
       this.randomRange(0, 1)(),
       1,
       0,
       maxPoint.z,
-      minPoint.z,
+      minPoint.z
     )
 
     return new vec3(x, y, z)

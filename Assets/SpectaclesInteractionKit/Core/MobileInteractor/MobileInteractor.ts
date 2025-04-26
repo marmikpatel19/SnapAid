@@ -32,7 +32,7 @@ export class MobileInteractor extends BaseInteractor {
   @ui.group_start("Mobile Interactor")
   @input
   @hint(
-    "Initialize Mobile Input Data Provider with Position and Rotation Filtering",
+    "Initialize Mobile Input Data Provider with Position and Rotation Filtering"
   )
   initializePositionAndRotationFilter: boolean = true
   @input
@@ -63,6 +63,7 @@ export class MobileInteractor extends BaseInteractor {
     this.mobileInputData.filterPositionAndRotation =
       this.initializePositionAndRotationFilter
 
+    this.defineSceneEvents()
     this.defineTouchEvents()
 
     this.rayProvider = new MobileRayProvider()
@@ -78,7 +79,7 @@ export class MobileInteractor extends BaseInteractor {
         },
         spherecastRadii: this.spherecastRadii,
         spherecastDistanceThresholds: this.spherecastDistanceThresholds,
-      },
+      }
     )
   }
 
@@ -192,8 +193,6 @@ export class MobileInteractor extends BaseInteractor {
 
     this.updateDragType()
     this.updateDragVector()
-
-    this.processTriggerEvents()
   }
 
   /** @inheritdoc */
@@ -211,13 +210,19 @@ export class MobileInteractor extends BaseInteractor {
     this.indirectTargetProvider.clearCurrentInteractableHitInfo()
   }
 
+  private defineSceneEvents(): void {
+    this.createEvent("OnDestroyEvent").bind(() => {
+      this.release()
+    })
+  }
+
   private defineTouchEvents(): void {
     this.createEvent("TouchStartEvent").bind((...args) =>
-      this.onTouchStartEvent(...args),
+      this.onTouchStartEvent(...args)
     )
 
     this.createEvent("TouchMoveEvent").bind((...args) =>
-      this.onTouchMoveEvent(...args),
+      this.onTouchMoveEvent(...args)
     )
 
     this.createEvent("TouchEndEvent").bind((...args) => this.onTouchEndEvent())
@@ -229,7 +234,7 @@ export class MobileInteractor extends BaseInteractor {
     if (this.currentInteractable !== null) {
       this.isManipulating =
         this.currentInteractable.sceneObject.getComponent(
-          InteractableManipulation.getTypeName(),
+          InteractableManipulation.getTypeName()
         ) !== null
     }
     if (!global.deviceInfoSystem.isEditor) {
@@ -298,18 +303,18 @@ export class MobileInteractor extends BaseInteractor {
     if ((this.currentTrigger & InteractorTriggerType.Select) !== 0) {
       const touchpadDragVector = this.touchpadDragProvider.getDragVector(
         this.getTouchpadDragPoint(),
-        this.currentInteractable?.enableInstantDrag ?? null,
+        this.currentInteractable?.enableInstantDrag ?? null
       )
       const sixDofDragVector = this.sixDofDragProvider.getDragVector(
         this.getSixDofDragPoint(),
-        this.currentInteractable?.enableInstantDrag ?? null,
+        this.currentInteractable?.enableInstantDrag ?? null
       )
 
       this.currentDragVector = this.dragProvider.currentDragVector
 
       this.planecastDragProvider.getDragVector(
         this.planecastPoint,
-        this.currentInteractable?.enableInstantDrag ?? null,
+        this.currentInteractable?.enableInstantDrag ?? null
       )
     } else {
       this.currentDragVector = null
@@ -336,7 +341,7 @@ export class MobileInteractor extends BaseInteractor {
         // Remap the touchpad space such that the bottom-left corner is [0,0] rather than the top-left corner.
         this.touchpadCurrentPosition.x,
         1 - this.touchpadCurrentPosition.y,
-        0,
+        0
       ).uniformScale(this.touchpadScrollSpeed)
     }
     return null
