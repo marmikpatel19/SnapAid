@@ -1,6 +1,9 @@
 import uuid
+from enum import Enum
+from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
 
 from app.models.schemas import LocationRequest
 from app.services.pharmacy import get_easyvax_locations
@@ -8,6 +11,97 @@ from app.services.restroom import get_restroom_data
 from app.utils.geo import get_zip_from_lat_long, haversine
 
 router = APIRouter()
+
+AVAILABLE_SERVICES = ['restroom', 'pharmacy']
+
+# Simple enum for query types
+class QueryType(Enum):
+    PHARMACY = "pharmacy"
+    RESTROOM = "restroom"
+    UNKNOWN = "unknown"
+
+# Simple schema for the orchestration endpoint
+class UserPrompt(BaseModel):
+    prompt: str
+    latitude: float
+    longitude: float
+
+
+def determine_intent(prompt: str) -> QueryType:
+    """
+    Determine the intent of the user prompt.
+    This is a simple placeholder for an LLM-based approach.
+    """
+    prompt_lower = prompt.lower()
+    
+    # Pharmacy/vaccine related keywords
+    pharmacy_keywords = [
+        'pharmacy', 'pharmacies', 'medicine', 'prescription', 'drug', 
+        'vaccine', 'vaccination', 'shot', 'immunization', 'booster',
+        'covid', 'flu', 'pills', 'medication'
+    ]
+    
+    # Restroom related keywords
+    restroom_keywords = [
+        'restroom', 'bathroom', 'toilet', 'lavatory', 'washroom', 
+        'facilities', 'wc', 'water closet', 'urinal', 'latrine'
+    ]
+    
+    # Check for pharmacy-related query
+    if any(keyword in prompt_lower for keyword in pharmacy_keywords):
+        return QueryType.PHARMACY
+    
+    # Check for restroom-related query
+    if any(keyword in prompt_lower for keyword in restroom_keywords):
+        return QueryType.RESTROOM
+    
+    # Default if unable to determine
+    return QueryType.UNKNOWN
+
+@router.post("/orchestrate")
+async def orchestrate_query(req: UserPrompt):
+    """
+    Endpoint that receives natural language queries and routes to appropriate services.
+    This can be extended to use a proper LLM in the future.
+    """
+    session_id = str(uuid.uuid4())
+    
+    # Check if we have coordinates
+    if req.latitude is None or req.longitude is None:
+        return {
+            "sessionId": session_id,
+            "message": "Coordinates are required. Please provide latitude and longitude.",
+            "requiredInput": ["latitude", "longitude"]
+        }
+    
+    # Create location request with the coordinat
+    
+    location_req = LocationRequest(latitude=req.latitude, longitude=req.longitude)
+    
+    # Determine intent from the prompt
+    query_type = determine_intent(req.prompt)
+    
+    # Route to appropriate endpoint based on detected intent
+    if query_type == QueryType.PHARMACY:
+        result = await find_pharmacy(location_req)
+        return {
+            "sessionId": session_id,
+            "queryType": "pharmacy",
+            "result": result
+        }
+    elif query_type == QueryType.RESTROOM:
+        result = await find_restroom(location_req)
+        return {
+            "sessionId": session_id,
+            "queryType": "restroom",
+            "result": result
+        }
+    else:
+        return {
+            "sessionId": session_id,
+            "message": "Could not determine intent from your query. Please try being more specific or use direct endpoints.",
+            "availableServices": AVAILABLE_SERVICES
+        }
 
 @router.post("/find_pharmacy")
 async def find_pharmacy(req: LocationRequest):
@@ -94,3 +188,10 @@ async def find_restroom(req: LocationRequest):
 @router.get("/")
 async def root():
     return {"message": "Welcome to the FastAPI server!"} 
+
+
+#create a mock call to call the orchestrate endpoint
+if __name__ == '__main__':
+    sample_data = {
+        
+    }

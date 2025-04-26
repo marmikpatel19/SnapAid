@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -18,6 +20,7 @@ def create_app():
     
     # Include routers
     app.include_router(router)
+    
     
     return app
 
