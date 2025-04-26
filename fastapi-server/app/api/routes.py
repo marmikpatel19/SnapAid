@@ -9,7 +9,6 @@ from app.services.restroom import get_restroom_data
 from app.utils.geo import get_zip_from_lat_long, haversine
 from app.services.medical import get_medical_care_locations
 
-# Create router with prefix
 router = APIRouter(prefix="/api", tags=["api"])
 
 @router.post("/find_pharmacy")
