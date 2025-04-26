@@ -44,10 +44,10 @@ export class VisionOpenAI extends BaseScriptComponent {
   // Method to ping the local endpoint
   async pingLocalEndpoint() {
     try {
-      print("Pinging local endpoint at http://127.0.0.1:8000/...");
+      print("Pinging ngrok endpoint...");
       
       const request = new Request(
-        "http://127.0.0.1:8000",
+        "https://daaa-164-67-70-232.ngrok-free.app/",
         {
           method: "GET",
           headers: {
@@ -57,16 +57,16 @@ export class VisionOpenAI extends BaseScriptComponent {
       );
       
       let response = await this.remoteServiceModule.fetch(request);
-      print("Local endpoint ping status: " + response.status);
+      print("Endpoint ping status: " + response.status);
       
       if (response.status === 200) {
         let responseData = await response.json();
-        print("Local endpoint response: " + JSON.stringify(responseData));
+        print("Endpoint response: " + JSON.stringify(responseData));
       } else {
-        print("Local endpoint ping failed with status: " + response.status);
+        print("Endpoint ping failed with status: " + response.status);
       }
     } catch (error) {
-      print("Error pinging local endpoint: " + error);
+      print("Error pinging endpoint: " + error);
     }
   }
 
@@ -236,4 +236,6 @@ export class VisionOpenAI extends BaseScriptComponent {
       );
     });
   }
+
+  
 }
