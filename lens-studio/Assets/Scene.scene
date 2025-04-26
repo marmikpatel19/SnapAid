@@ -61,6 +61,21 @@
   DepthStencilRenderTarget: !<reference> 00000000-0000-0000-0000-000000000000
   MaskTexture: !<reference> 00000000-0000-0000-0000-000000000000
   RayTracing: !<reference> 00000000-0000-0000-0000-000000000000
+- !<SceneObject/02e78284-8da9-4df2-a77c-e62e450eabe0>
+  PrefabRemaps:
+    []
+  Name: Object 0
+  Enabled: true
+  Layers: 1
+  LocalTransform:
+    position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    hasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    []
 - !<SceneObject/03067966-e830-4b94-a792-b21ef13ea6ca>
   PrefabRemaps:
     []
@@ -1734,7 +1749,7 @@
     scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     hasSegmentScaleCompensation: false
   Children:
-    []
+    - !<own> 02e78284-8da9-4df2-a77c-e62e450eabe0
   Components:
     - !<own> daa5c609-8153-4abd-82cb-3ef0c1b87233
 - !<SceneObject/764d951d-7c7b-4a93-98bf-18baacf60e6b>
@@ -1765,6 +1780,21 @@
     hasSegmentScaleCompensation: false
   Children:
     - !<own> eb62bb6b-c6d1-4750-a47c-b2c430b654a3
+  Components:
+    []
+- !<SceneObject/772a0ef0-3bdc-45fb-b877-50d5a0249aa8>
+  PrefabRemaps:
+    []
+  Name: Object 0
+  Enabled: true
+  Layers: 1
+  LocalTransform:
+    position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    hasSegmentScaleCompensation: false
+  Children:
+    []
   Components:
     []
 - !<SceneObject/773ff007-4a24-4507-9815-1be4d4889354>
@@ -2690,7 +2720,7 @@
     scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     hasSegmentScaleCompensation: false
   Children:
-    []
+    - !<own> 772a0ef0-3bdc-45fb-b877-50d5a0249aa8
   Components:
     - !<own> 52102164-ce46-41b8-8af8-a0d2f7c7d66a
 - !<ScriptComponent/c42ecdd0-2586-433f-958c-9c9e8b5b5af7>

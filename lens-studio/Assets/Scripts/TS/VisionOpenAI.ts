@@ -3,6 +3,9 @@ import { InteractorEvent } from "../../SpectaclesInteractionKit/Core/Interactor/
 import { SIK } from "../../SpectaclesInteractionKit/SIK";
 import { TextToSpeechOpenAI } from "./TextToSpeechOpenAI";
 
+// Add location module requirement
+require('LensStudio:RawLocationModule');
+
 @component
 export class VisionOpenAI extends BaseScriptComponent {
   @input textInput: Text;
@@ -12,9 +15,16 @@ export class VisionOpenAI extends BaseScriptComponent {
   @input ttsComponent: TextToSpeechOpenAI;
   @input LLM_analyse: Text;
 
+  // Location properties
+  latitude: number;
+  longitude: number;
+  private locationService: LocationService;
+  private updateLocationEvent: DelayedCallbackEvent;
+
   apiKey: string = "REMOVED-API-KEY";
   geminiApiKey: string = "REMOVED-GEMINI-KEY";
   geminiApiEndpoint: string = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+  python_ngrok_backend: string = "REMOVED-NGROK-URL";
 
   // Remote service module for fetching data
   private remoteServiceModule: RemoteServiceModule = require("LensStudio:RemoteServiceModule");
@@ -24,6 +34,12 @@ export class VisionOpenAI extends BaseScriptComponent {
   onAwake() {
     this.createEvent("OnStartEvent").bind(() => {
       this.onStart();
+    });
+
+    // Initialize location update event
+    this.updateLocationEvent = this.createEvent('DelayedCallbackEvent');
+    this.updateLocationEvent.bind(() => {
+      this.updateLocation();
     });
   }
 
@@ -37,38 +53,76 @@ export class VisionOpenAI extends BaseScriptComponent {
 
     this.interactable.onInteractorTriggerEnd(onTriggerEndCallback);
     
-    // Ping the local endpoint once when the app loads
-    this.pingLocalEndpoint();
+    // Initialize location service
+    this.initLocationService();
   }
-  
-  // Method to ping the local endpoint
-  async pingLocalEndpoint() {
+
+  // Initialize location service
+  initLocationService() {
     try {
-      print("Pinging ngrok endpoint...");
+      print("Initializing location service...");
+      this.locationService = GeoLocation.createLocationService();
       
-      const request = new Request(
-        "https://daaa-164-67-70-232.ngrok-free.app/",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json"
-          }
-        }
-      );
+      // Set accuracy to Navigation for best results
+      this.locationService.accuracy = GeoLocationAccuracy.Navigation;
       
-      let response = await this.remoteServiceModule.fetch(request);
-      print("Endpoint ping status: " + response.status);
-      
-      if (response.status === 200) {
-        let responseData = await response.json();
-        print("Endpoint response: " + JSON.stringify(responseData));
-      } else {
-        print("Endpoint ping failed with status: " + response.status);
-      }
+      // Start location updates immediately
+      this.updateLocationEvent.reset(0.0);
+      print("Location service initialized successfully");
     } catch (error) {
-      print("Error pinging endpoint: " + error);
+      print("Error initializing location service: " + error);
     }
   }
+  
+  // Update location periodically
+  updateLocation() {
+    if (!this.locationService) {
+      print("Location service not initialized");
+      return;
+    }
+    
+    this.locationService.getCurrentPosition(
+      (geoPosition) => {
+        this.latitude = geoPosition.latitude;
+        this.longitude = geoPosition.longitude;
+        print(`Location updated - Lat: ${this.latitude.toFixed(6)}, Long: ${this.longitude.toFixed(6)}`);
+      },
+      (error) => {
+        print("Error getting location: " + error);
+      }
+    );
+    
+    // Schedule next update in 1 second
+    this.updateLocationEvent.reset(1.0);
+  }
+
+  // Method to ping the local endpoint
+  // async pingLocalEndpoint() {
+  //   try {
+  //     print("Pinging ngrok endpoint...");
+      
+  //     const request = new Request(this.python_ngrok_backend,
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json"
+  //         }
+  //       }
+  //     );
+      
+  //     let response = await this.remoteServiceModule.fetch(request);
+  //     print("Endpoint ping status: " + response.status);
+      
+  //     if (response.status === 200) {
+  //       let responseData = await response.json();
+  //       print("Endpoint response: " + JSON.stringify(responseData));
+  //     } else {
+  //       print("Endpoint ping failed with status: " + response.status);
+  //     }
+  //   } catch (error) {
+  //     print("Error pinging endpoint: " + error);
+  //   }
+  // }
 
   async handleTriggerEnd(eventData) {
     if (this.isProcessing) {
@@ -99,12 +153,20 @@ export class VisionOpenAI extends BaseScriptComponent {
 
       const base64Image = await this.encodeTextureToBase64(texture);
 
+      // Include location data in the request if available
+      let locationInfo = "";
+      if (this.latitude && this.longitude) {
+        locationInfo = `Current location - Latitude: ${this.latitude.toFixed(6)}, Longitude: ${this.longitude.toFixed(6)}`;
+        print("Including location data in request: " + locationInfo);
+      }
+
       const requestPayload = {
         contents: [
           {
             parts: [
               {
-                text: "You are a helpful AI assistant that works for Snapchat that has access to the view that the user is looking at using Augmented Reality Glasses. The user is asking for help with the following image and text. Keep it short like under 30 words. Be a little funny and keep it positive."
+                text: "You are a healthcare monitor AI assistant designed to help homeless individuals with medical concerns. You can analyze images of physical injuries, provide basic first aid advice, suggest medical resources, and help locate nearby shelters, pharmacies, washrooms, and healthcare facilities. Keep responses concise, practical, and supportive. For physical injuries visible in images, suggest immediate care steps and nearby resources." + 
+                (locationInfo ? ` ${locationInfo}` : "")
               },
               {
                 text: this.textInput.text
