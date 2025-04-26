@@ -6,10 +6,10 @@ from fastapi import APIRouter, Depends, Query
 from app.models.schemas import HealthcareFacility, LocationRequest
 from app.services.pharmacy import get_easyvax_locations
 from app.services.restroom import get_restroom_data
-from app.utils.geo import get_zip_from_lat_long, haversine
 from app.services.medical import get_medical_care_locations
+from app.utils.geo import get_zip_from_lat_long, haversine
 
-router = APIRouter(prefix="/api", tags=["api"])
+router = APIRouter(prefix="/api", tags=["API Endpoints"])
 
 @router.post("/find_pharmacy")
 async def find_pharmacy(req: LocationRequest):
@@ -78,7 +78,6 @@ async def find_restroom(req: LocationRequest):
                         "location": geom,
                         "distance_miles": round(distance, 2)
                     }
-
         if closest_restroom:
             return {
                 "sessionId": session_id,
@@ -99,14 +98,17 @@ async def get_healthcare_facilities(
     lon: float = Query(..., description="Longitude of the location"),
     limit: int = Query(10, description="Maximum number of facilities to return")
 ):
-    facilities = get_medical_care_locations(lat, lon, limit)
+    try:
+        facilities = get_medical_care_locations(lat, lon, limit)
+        
+        if isinstance(facilities, dict) and "error" in facilities:
+            return {"error": facilities["error"]}
+        
+        return [HealthcareFacility(name=f["name"], type=f["type"], distance=f["distance"]) for f in facilities]
     
-    if isinstance(facilities, dict) and "error" in facilities:
-        return {"error": facilities["error"]}
-    
-    # Convert to HealthcareFacility objects
-    return [HealthcareFacility(name=f["name"], type=f["type"], distance=f["distance"]) for f in facilities]
+    except Exception as e:
+        return {"error": str(e)}
 
 @router.get("/")
 async def root():
-    return {"message": "Welcome to the FastAPI server!"} 
+    return {"message": "Welcome to the FastAPI server!"}
