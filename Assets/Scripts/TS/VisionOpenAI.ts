@@ -36,6 +36,38 @@ export class VisionOpenAI extends BaseScriptComponent {
     };
 
     this.interactable.onInteractorTriggerEnd(onTriggerEndCallback);
+    
+    // Ping the local endpoint once when the app loads
+    this.pingLocalEndpoint();
+  }
+  
+  // Method to ping the local endpoint
+  async pingLocalEndpoint() {
+    try {
+      print("Pinging local endpoint at http://127.0.0.1:8000/...");
+      
+      const request = new Request(
+        "http://127.0.0.1:8000",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
+      
+      let response = await this.remoteServiceModule.fetch(request);
+      print("Local endpoint ping status: " + response.status);
+      
+      if (response.status === 200) {
+        let responseData = await response.json();
+        print("Local endpoint response: " + JSON.stringify(responseData));
+      } else {
+        print("Local endpoint ping failed with status: " + response.status);
+      }
+    } catch (error) {
+      print("Error pinging local endpoint: " + error);
+    }
   }
 
   async handleTriggerEnd(eventData) {
