@@ -1,75 +1,15 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-import requests
-from geopy.geocoders import Nominatim
-from datetime import datetime, timedelta
 import uuid
-import json
-from pydantic import BaseModel
-from math import radians, cos, sin, asin, sqrt
 
+from fastapi import APIRouter, Depends
 
-app = FastAPI()
-# Define the body schema for POST request
-class LocationRequest(BaseModel):
-    latitude: float
-    longitude: float
+from app.models.schemas import LocationRequest
+from app.services.pharmacy import get_easyvax_locations
+from app.services.restroom import get_restroom_data
+from app.utils.geo import get_zip_from_lat_long, haversine
 
-def haversine(lon1, lat1, lon2, lat2):
-    """Calculate the great-circle distance between two points (in miles)."""
-    # Convert decimal degrees to radians
-    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+router = APIRouter()
 
-    # Haversine formula
-    dlon = lon2 - lon1 
-    dlat = lat2 - lat1 
-    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-    c = 2 * asin(sqrt(a)) 
-    r = 3956  # Radius of Earth in miles
-    return c * r
-
-def get_zip_from_lat_long(lat, long):
-    """Get zip code from latitude and longitude using Nominatim."""
-    geolocator = Nominatim(user_agent="easyvax_locator")
-    location = geolocator.reverse((lat, long), exactly_one=True)
-    if location and 'postcode' in location.raw['address']:
-        return location.raw['address']['postcode']
-    else:
-        raise ValueError("Zip code could not be found for the given coordinates.")
-
-def get_easyvax_locations(zip_code, session_id):
-    """Query EasyVax API with a zip code and return locations."""
-    start_date = datetime.utcnow().replace(hour=7, minute=0, second=0, microsecond=0)
-    end_date = (start_date + timedelta(days=1)).replace(hour=6, minute=59, second=59, microsecond=999999)
-
-    headers = {
-        'accept': 'application/json, text/plain, */*',
-        'accept-language': 'en-US,en;q=0.9',
-        'apikey': 'il%I9&*jDCMMocKg',  # your provided API key
-        'onramp': 'web',
-        'onramp-version': '2.2.1',
-        'user-id': session_id,
-    }
-    
-    url = (
-        f"https://api.easyvax.com/api/locations"
-        f"?campaignId=dtcpdsearch"
-        f"&qry={zip_code}"
-        f"&serviceCode=COVID"
-        f"&vaccineCode=COVID"
-        f"&startDate={start_date.isoformat()}Z"
-        f"&endDate={end_date.isoformat()}Z"
-        f"&radius=20"
-    )
-
-    response = requests.get(url, headers=headers)
-    
-    if response.status_code == 200:
-        return response.json()
-    else:
-        raise Exception(f"EasyVax API error: {response.status_code} - {response.text}")
-
-@app.post("/find_pharmacy")
+@router.post("/find_pharmacy")
 async def find_pharmacy(req: LocationRequest):
     session_id = str(uuid.uuid4())  # Generate fresh session UUID
     try:
@@ -107,16 +47,7 @@ async def find_pharmacy(req: LocationRequest):
     except Exception as e:
         return {"sessionId": session_id, "error": str(e)}
 
-def get_restroom_data():
-    """Fetch restroom data from LA Open Data."""
-    url = "https://data.lacity.org/resource/s5e6-2pbm.json"  # Public API endpoint
-    response = requests.get(url)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        raise Exception(f"LA Restroom API error: {response.status_code} - {response.text}")
-
-@app.post("/find_restroom")
+@router.post("/find_restroom")
 async def find_restroom(req: LocationRequest):
     session_id = str(uuid.uuid4())  # Generate fresh session UUID
     try:
@@ -145,7 +76,7 @@ async def find_restroom(req: LocationRequest):
                         "location": geom,
                         "distance_miles": round(distance, 2)
                     }
-#test
+
         if closest_restroom:
             return {
                 "sessionId": session_id,
@@ -159,19 +90,7 @@ async def find_restroom(req: LocationRequest):
 
     except Exception as e:
         return {"sessionId": session_id, "error": str(e)}
-# Configure CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
-    allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
-)
-
-@app.get("/")
+        
+@router.get("/")
 async def root():
-    return {"message": "Welcome to the FastAPI server!"}
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+    return {"message": "Welcome to the FastAPI server!"} 
