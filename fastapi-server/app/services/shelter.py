@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from app.utils.geo import haversine  # assuming you already have this
 
-def get_lapl_homeless_resources_nearest(user_lat, user_lon, zip_code):
+def find_shelter(user_lat, user_lon, zip_code):
     """Fetch and return the closest homeless resource to the user location."""
     
     url = "https://www.lapl.org/homeless-resources"
