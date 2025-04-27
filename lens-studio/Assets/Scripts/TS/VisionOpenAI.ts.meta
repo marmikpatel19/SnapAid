@@ -27,8 +27,11 @@
   MaxVisibility: Editable
   ScriptInputsHidden:
     LLM_analyse: false
+    chatHistoryText: false
     image: false
     interactable: false
+    maxCharsPerLine: false
+    maxHistoryLength: false
     textInput: false
     textOutput: false
     ttsComponent: false
@@ -41,6 +44,9 @@
       interactable: !<MappingBased.Interactable> 00000000-0000-0000-0000-000000000000
       ttsComponent: !<MappingBased.TextToSpeechOpenAI> 00000000-0000-0000-0000-000000000000
       LLM_analyse: !<reference.Text> 00000000-0000-0000-0000-000000000000
+      maxCharsPerLine: !<float> 60.000000
+      chatHistoryText: !<reference.Text> 00000000-0000-0000-0000-000000000000
+      maxHistoryLength: !<float> 10.000000
   ScriptTypes:
     -
       {}
@@ -51,4 +57,7 @@
     - // @input Interactable interactable
     - // @input TextToSpeechOpenAI ttsComponent
     - // @input Component.Text LLM_analyse
+    - // @input Component.Text chatHistoryText
+    - // @input float maxHistoryLength = 10
+    - // @input float maxCharsPerLine = 100
   DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
