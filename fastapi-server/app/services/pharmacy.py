@@ -43,19 +43,28 @@ def get_easyvax_locations(zip_code: str, session_id: str):
 
     # Make the GET request
     response = requests.get(url, headers=headers)
-
+    print(response.json)
+    print(response.status_code)
     try:
         response.raise_for_status()
+        print(response.json)
+        print(response.status_code)
     except requests.HTTPError as e:
+        print(response.json)
+        print(response.status_code)
         print(f"[get_easyvax_locations] HTTP Error: {e}")
         print(f"[get_easyvax_locations] Raw response: {response.text}")
         raise
 
     try:
         data = response.json()
+        print(response.json)
+        print(response.status_code)
         print(f"[get_easyvax_locations] JSON decoded successfully.")
         return data
     except Exception as e:
+        print(response.json)
+        print(response.status_code)
         print(f"[get_easyvax_locations] Failed to decode JSON: {e}")
         print(f"[get_easyvax_locations] Raw response text: {response.text}")
         raise ValueError(f"Failed to decode JSON: {e}")
