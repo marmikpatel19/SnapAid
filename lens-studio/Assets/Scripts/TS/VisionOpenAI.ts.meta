@@ -28,6 +28,7 @@
   ScriptInputsHidden:
     LLM_analyse: false
     chatHistoryText: false
+    enableSummary: false
     image: false
     interactable: false
     maxCharsPerLine: false
@@ -47,6 +48,7 @@
       maxCharsPerLine: !<float> 60.000000
       chatHistoryText: !<reference.Text> 00000000-0000-0000-0000-000000000000
       maxHistoryLength: !<float> 10.000000
+      enableSummary: true
   ScriptTypes:
     -
       {}
@@ -59,5 +61,6 @@
     - // @input Component.Text LLM_analyse
     - // @input Component.Text chatHistoryText
     - // @input float maxHistoryLength = 10
+    - // @input bool enableSummary = true
     - // @input float maxCharsPerLine = 100
   DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
