@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
+
 import requests
+
 
 def get_easyvax_locations(zip_code: str, session_id: str):
     """Query EasyVax API with a zip code and session ID, and return available locations."""
@@ -42,8 +44,19 @@ def get_easyvax_locations(zip_code: str, session_id: str):
     # Make the GET request
     response = requests.get(url, headers=headers)
 
-    # Handle the response
-    if response.status_code == 200:
-        return response.json()
-    else:
-        raise Exception(f"EasyVax API error {response.status_code}: {response.text}")
+    try:
+        response.raise_for_status()
+    except requests.HTTPError as e:
+        print(f"[get_easyvax_locations] HTTP Error: {e}")
+        print(f"[get_easyvax_locations] Raw response: {response.text}")
+        raise
+
+    try:
+        data = response.json()
+        print(f"[get_easyvax_locations] JSON decoded successfully.")
+        return data
+    except Exception as e:
+        print(f"[get_easyvax_locations] Failed to decode JSON: {e}")
+        print(f"[get_easyvax_locations] Raw response text: {response.text}")
+        raise ValueError(f"Failed to decode JSON: {e}")
+
