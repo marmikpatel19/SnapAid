@@ -41,38 +41,42 @@ async def handle_pharmacy_request(latitude: float, longitude: float) -> Dict[str
     session_id = str(uuid.uuid4())
     try:
         zip_code = get_zip_from_lat_long(latitude, longitude)
+        print(f"[handle_pharmacy_request] Zip code: {zip_code}")
+
         locations = get_easyvax_locations(zip_code, session_id)
-        
+        print(f"[handle_pharmacy_request] Locations raw: {locations}")
+
+        if not isinstance(locations, list):
+            return {"sessionId": session_id, "error": f"Expected list, got {type(locations).__name__}: {locations}"}
+
         for loc in locations:
             if loc.get('appointments'):
                 has_appointments = any(day['times'] for day in loc['appointments'])
                 if has_appointments:
                     pharmacy_info = {
                         "sessionId": session_id,
-                        "locationName": loc['locationName'],
-                        "address": loc['address'],
-                        "city": loc['city'],
-                        "state": loc['state'],
-                        "zip": loc['zip'],
+                        "locationName": loc.get('locationName', 'Unknown'),
+                        "address": loc.get('address', 'Unknown'),
+                        "city": loc.get('city', 'Unknown'),
+                        "state": loc.get('state', 'Unknown'),
+                        "zip": loc.get('zip', 'Unknown'),
                         "appointments": [],
                         "distance_miles": loc.get('distance', 0),
                     }
-                    
                     for appointment_day in loc['appointments']:
-                        if appointment_day['times']:
+                        if appointment_day.get('times'):
                             day_info = {
-                                "date": appointment_day['date'],
-                                "times": [slot['time'] for slot in appointment_day['times']]
+                                "date": appointment_day.get('date', 'Unknown'),
+                                "times": [slot.get('time', 'Unknown') for slot in appointment_day['times']]
                             }
                             pharmacy_info["appointments"].append(day_info)
                     
                     return pharmacy_info
         
         return {"sessionId": session_id, "message": "No pharmacies with available appointments found."}
-    
-    except Exception as e:
-        return {"sessionId": session_id, "error string 1": str(e)}
 
+    except Exception as e:
+        return {"sessionId": session_id, "error": f"Internal error: {str(e)}"}
 @router.post("/find_pharmacy")
 async def find_pharmacy(req: LocationRequest):
     return await handle_pharmacy_request(req.latitude, req.longitude)
