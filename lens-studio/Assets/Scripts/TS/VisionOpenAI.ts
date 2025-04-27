@@ -24,7 +24,7 @@ export class VisionOpenAI extends BaseScriptComponent {
   apiKey: string = "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";
   geminiApiKey: string = "AIzaSyC548LX0EHEDZt-Gr_nCAI8m1zrKonF3gk";
   geminiApiEndpoint: string = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
-  python_ngrok_backend: string = "https://3287-164-67-70-232.ngrok-free.app";
+  python_ngrok_backend: string = "https://fe4e-2600-387-15-1115-00-b.ngrok-free.app";
 
   // Remote service module for fetching data
   private remoteServiceModule: RemoteServiceModule = require("LensStudio:RemoteServiceModule");
@@ -129,86 +129,44 @@ export class VisionOpenAI extends BaseScriptComponent {
       print("A request is already in progress. Please wait.");
       return;
     }
-
-    if (!this.textInput.text || !this.image || !this.apiKey) {
-      print("Text, Image, or API key input is missing");
+  
+    if (!this.textInput.text) {
+      print("Text input is missing");
       return;
     }
-
+  
     try {
       this.isProcessing = true;
       
-      // Set a more detailed analysis text
+      // Update UI
       if (this.LLM_analyse) {
         const currentTime = new Date().toLocaleTimeString();
-        this.LLM_analyse.text = `🔄 Processing (${currentTime})...\n\nSteps:\n1. Encoding image ⏳\n2. Sending to AI model ⏳\n3. Waiting for response ⏳\n\nPlease wait while the AI analyzes your request...`;
+        this.LLM_analyse.text = `🔄 Processing (${currentTime})...\n\nSteps:\n1. Preparing request ⏳\n2. Sending to backend ⏳\n3. Waiting for response ⏳\n\nPlease wait...`;
       }
-
-      // Access the texture from the image component
-      const texture = this.image.mainPass.baseTex;
-      if (!texture) {
-        print("Texture not found in the image component.");
-        return;
+  
+      let base64Image = "";
+  
+      // Encode image if available
+      if (this.image) {
+        const texture = this.image.mainPass.baseTex;
+        if (texture) {
+          base64Image = await this.encodeTextureToBase64(texture) as string;
+          print("Image encoded to base64 successfully.");
+        } else {
+          print("Texture not found in the image component.");
+        }
       }
-
-      const base64Image = await this.encodeTextureToBase64(texture);
-
-      // Include location data in the request if available
-      let locationInfo = "";
-      if (this.latitude && this.longitude) {
-        locationInfo = `Current location - Latitude: ${this.latitude.toFixed(6)}, Longitude: ${this.longitude.toFixed(6)}`;
-        print("Including location data in request: " + locationInfo);
-      }
-
-      const requestPayload = {
-        contents: [
-          {
-            parts: [
-              {
-                text: "You are a healthcare monitor AI assistant designed to help homeless individuals with medical concerns. You can analyze images of physical injuries, provide basic first aid advice, suggest medical resources, and help locate nearby shelters, pharmacies, washrooms, and healthcare facilities. Keep responses concise, practical, and supportive. For physical injuries visible in images, suggest immediate care steps and nearby resources." + 
-                (locationInfo ? ` ${locationInfo}` : "")
-              },
-              {
-                text: this.textInput.text
-              },
-              {
-                inline_data: {
-                  mime_type: "image/jpeg",
-                  data: base64Image
-                }
-              }
-            ]
-          }
-        ],
-        generation_config: {
-          temperature: 0.2,
-          max_output_tokens: 100,
-          top_p: 0.95,
-          top_k: 40,
-          response_mime_type: "text/plain"
-        },
-        safety_settings: [
-          {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_HATE_SPEECH",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          }
-        ]
+  
+      // Prepare payload
+      const orchestratePayload = {
+        user_prompt: this.textInput.text,
+        latitude: this.latitude || 0,
+        longitude: this.longitude || 0,
+        image_surroundings: base64Image
       };
-      const fullUrl = `${this.geminiApiEndpoint}?key=${this.geminiApiKey}`;
-
-
+  
+      const fullUrl = `${this.python_ngrok_backend}/api/orchestrate`;
+  
       const request = new Request(
         fullUrl,
         {
@@ -216,75 +174,48 @@ export class VisionOpenAI extends BaseScriptComponent {
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify(requestPayload),
+          body: JSON.stringify(orchestratePayload),
         }
       );
-
-      // More about the fetch API: https://developers.snap.com/spectacles/about-spectacles-features/apis/fetch
+      print("Posting to URL: " + fullUrl);
       let response = await this.remoteServiceModule.fetch(request);
+      
       if (response.status === 200) {
         let responseData = await response.json();
-        let responseText;
-        try {
-          // First try standard response format
-          if (responseData.candidates && 
-              responseData.candidates[0] && 
-              responseData.candidates[0].content && 
-              responseData.candidates[0].content.parts && 
-              responseData.candidates[0].content.parts[0]) {
-            
-            responseText = responseData.candidates[0].content.parts[0].text;
-          } 
-          // Fallback to alternative formats if needed
-          else if (responseData.candidates && responseData.candidates[0] && responseData.candidates[0].content) {
-            // Try as direct text
-            responseText = responseData.candidates[0].content;
-          }
-          else {
-            // Last resort - convert whole response to string
-            responseText = JSON.stringify(responseData);
-          }
-        } catch (e) {
-          responseText = "Error parsing response: " + e;
-          print("Error extracting response text: " + e);
-        }
-
+  
+        let responseText = typeof responseData === "string" ? responseData : JSON.stringify(responseData);
+  
+        // Set output
         this.textOutput.text = responseText;
-
-        print("Response: " + responseText);
-
-
-
-        // Show the full model response in the analysis text field
+        print("Response from orchestrate: " + responseText);
+  
+        // Update analysis field
         if (this.LLM_analyse) {
-          // Extract useful analysis information
-          const fullResponse = responseText;
-          const promptTokenEstimate = JSON.stringify(requestPayload).length / 4;
-          this.LLM_analyse.text = `Analysis complete ✓\n\nModel: Gemini-1.5-flash\nEstimated tokens: ~${promptTokenEstimate}\n\nFull response:\n${fullResponse}`;
+          this.LLM_analyse.text = `✅ Response Received\n\n${responseText}`;
         }
-        
-
-        // Call TTS to generate and play speech from the response
+  
+        // Optionally, TTS
         if (this.ttsComponent) {
-          this.ttsComponent.generateAndPlaySpeech(
-            responseText
-          );
+          this.ttsComponent.generateAndPlaySpeech(responseText);
         }
+  
       } else {
-        print("Failure: response not successful");
+        print("Failure: Orchestrate API call failed with status " + response.status);
         if (this.LLM_analyse) {
-          this.LLM_analyse.text = `❌ Error (HTTP ${response.status})\n\nThe API request failed. Please try again or check your connection.`;
+          this.LLM_analyse.text = `❌ Error (HTTP ${response.status})\n\nBackend request failed.`;
         }
       }
+  
     } catch (error) {
-      print("Error: " + error);
+      print("Error in handleTriggerEnd: " + error);
       if (this.LLM_analyse) {
-        this.LLM_analyse.text = `❌ Error\n\nSomething went wrong: ${error}\n\nPlease try again or check your settings.`;
+        this.LLM_analyse.text = `❌ Error\n\n${error}`;
       }
     } finally {
       this.isProcessing = false;
     }
   }
+  
 
   // More about encodeTextureToBase64: https://platform.openai.com/docs/guides/vision or https://developers.snap.com/api/lens-studio/Classes/OtherClasses#Base64
   encodeTextureToBase64(texture) {
