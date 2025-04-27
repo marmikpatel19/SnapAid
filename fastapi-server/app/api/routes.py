@@ -1,23 +1,72 @@
+from typing import List
 import uuid
-from typing import Any, Dict, List
 
-import requests
 from fastapi import APIRouter, Depends, Query
 
-from app.models.schemas import (
-    HealthcareFacility,
-    LocationRequest,
-    OrchestrationRequest,
-    Shelter,
-)
-from app.services.medical import get_medical_care_locations
+from app.models.schemas import HealthcareFacility, LocationRequest
 from app.services.pharmacy import get_easyvax_locations
 from app.services.restroom import get_restroom_data
 from app.services.medical import get_medical_care_locations
-from app.services.shelter import get_shelter_data
 from app.utils.geo import get_zip_from_lat_long, haversine
 
+from typing import Optional
+import base64
+from pydantic import BaseModel
+import os
+import uuid
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+import httpx
+import json
+
 router = APIRouter(prefix="/api", tags=["API Endpoints"])
+from typing import Optional
+import base64
+from pydantic import BaseModel
+import os
+import uuid
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+import httpx
+import json
+
+# Create a router for vision API endpoints
+vision_router = APIRouter(prefix="/api", tags=["Vision API"])
+
+# Define the request model
+class VisionResponseModel(BaseModel):
+    sessionId: str
+    response: str
+    full_response: Optional[dict] = None
+
+
+from app.services.gemini import send_vision_prompt
+
+@router.post("/vision", response_model=VisionResponseModel)
+async def process_vision_request(
+    prompt: str = 'For the health query I will say, Generate a realistic 3–4 line summary tailored for someone experiencing homelessness. Guidelines: - Use simple, practical, and reality-based advice. - Ground responses in common web search results, not imagination. - Include a quick analysis and actionable, helpful steps. - Avoid exaggerated, unrealistic, or idealized suggestions. - Tone should be empathetic, grounded, and easy to understand.',
+    image: UploadFile = File(..., description="Image of surroundings")
+):
+    session_id = str(uuid.uuid4())
+    try:
+        image_content = await image.read()
+        mime_type = image.content_type or "image/jpeg"
+        
+        result = await send_vision_prompt(prompt, image_content, mime_type)
+
+        if "error" in result:
+            raise HTTPException(status_code=500, detail=result["error"])
+
+        return VisionResponseModel(
+            sessionId=result["sessionId"],
+            response=result["response"],
+            full_response=result["full_response"]
+        )
+
+    except Exception as e:
+        import traceback
+        error_traceback = traceback.format_exc()
+        print(f"Error processing vision request: {str(e)}\n{error_traceback}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/find_pharmacy")
 async def find_pharmacy(req: LocationRequest):
@@ -141,109 +190,6 @@ async def get_healthcare_facilities(
     except Exception as e:
         return {"error": str(e)}
 
-@router.post("/find_shelter")
-async def find_shelter(req: LocationRequest):
-    session_id = str(uuid.uuid4())  # Generate fresh session UUID
-    try:
-        user_lat = req.latitude
-        user_lon = req.longitude
-        
-        shelters = get_shelter_data()
-
-        nearest_shelters = []
-        for shelter in shelters:
-            # Check if shelter has location data
-            if shelter.get('latitude') and shelter.get('longitude'):
-                shelter_lat = float(shelter.get('latitude'))
-                shelter_lon = float(shelter.get('longitude'))
-                
-                # Calculate distance using haversine formula
-                distance = haversine(user_lon, user_lat, shelter_lon, shelter_lat)
-                
-                shelter_info = {
-                    "name": shelter.get('shelter_name', 'Unknown'),
-                    "address": shelter.get('address', 'Unknown'),
-                    "phone": shelter.get('contact_number', 'Unknown'),
-                    "hours": shelter.get('hours', 'Unknown'),
-                    "service_type": shelter.get('service_type', 'Unknown'),
-                    "distance_miles": round(distance, 2),
-                    "latitude": shelter_lat,
-                    "longitude": shelter_lon
-                }
-                
-                nearest_shelters.append(shelter_info)
-        
-        # Sort shelters by distance
-        nearest_shelters.sort(key=lambda x: x['distance_miles'])
-        
-        # Return top 5 nearest shelters
-        if nearest_shelters:
-            return {
-                "sessionId": session_id,
-                "nearestShelters": nearest_shelters[:5]
-            }
-        else:
-            return {
-                "sessionId": session_id,
-                "message": "No shelters found."
-            }
-            
-    except Exception as e:
-        return {"sessionId": session_id, "error": str(e)}
-
-@router.get("/shelters", response_model=List[Shelter])
-async def get_shelters(
-    lat: float = Query(..., description="Latitude of the location"),
-    lon: float = Query(..., description="Longitude of the location"),
-    limit: int = Query(5, description="Maximum number of shelters to return")
-):
-    try:
-        shelters_data = get_shelter_data()
-        
-        shelter_list = []
-        for shelter in shelters_data:
-            if shelter.get('latitude') and shelter.get('longitude'):
-                shelter_lat = float(shelter.get('latitude'))
-                shelter_lon = float(shelter.get('longitude'))
-                
-                # Calculate distance
-                distance = haversine(lon, lat, shelter_lon, shelter_lat)
-                
-                shelter_list.append(Shelter(
-                    name=shelter.get('shelter_name', 'Unknown Shelter'),
-                    address=shelter.get('address', 'Unknown Address'),
-                    phone=shelter.get('contact_number', 'Unknown'),
-                    distance=distance,
-                    latitude=shelter_lat,
-                    longitude=shelter_lon
-                ))
-        
-        # Sort by distance and limit results
-        shelter_list.sort(key=lambda x: x.distance)
-        return shelter_list[:limit]
-        
-    except Exception as e:
-        return {"error": f"Failed to fetch shelters: {str(e)}"}
-
 @router.get("/")
 async def root():
     return {"message": "Welcome to the FastAPI server!"}
-
-
-# @router.post("/orchestrate", response_model=Dict[str, Any])
-# async def orchestrate(req: OrchestrationRequest):
-#     """
-#     Orchestration endpoint that determines which service to call based on semantic similarity.
-    
-#     Args:
-#         req: Request containing user prompt, location, and optional image
-        
-#     Returns:
-#         Dictionary with response from the most appropriate service
-#     """
-#     return await process_request(
-#         user_prompt=req.user_prompt,
-#         latitude=req.latitude,
-#         longitude=req.longitude,
-#         image_surroundings=req.image_surroundings
-#     ) 
