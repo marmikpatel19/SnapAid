@@ -8,7 +8,7 @@ from app.services.pharmacy import get_easyvax_locations
 from app.services.restroom import get_restroom_data
 from app.services.medical import get_medical_care_locations
 from app.utils.geo import get_zip_from_lat_long, haversine
-
+from app.services.shelter import find_shelter
 from typing import Optional
 import base64
 from pydantic import BaseModel
@@ -115,6 +115,35 @@ async def find_pharmacy(req: LocationRequest):
     except Exception as e:
         return {"sessionId": session_id, "error": str(e)}
 
+@router.post("/find_shelter")
+async def find_homeless_resources(req: LocationRequest):
+    session_id = str(uuid.uuid4())  # Generate fresh session UUID
+    try:
+        print(f"Received request to find homeless resources for session {session_id}")
+        print(f"Request details: {req}")
+        
+        if not req.latitude or not req.longitude:
+            return {"sessionId": session_id, "error": "Latitude and longitude are required."}
+        
+        print(f"Latitude: {req.latitude}, Longitude: {req.longitude}")
+        print("Converting latitude and longitude to zip code...")
+        zip_code = get_zip_from_lat_long(req.latitude, req.longitude)
+        
+        print(f"Using ZIP code: {zip_code} for search.")
+        
+        nearest_resource = find_shelter(req.latitude, req.longitude, zip_code)
+        
+        return {
+            "sessionId": session_id,
+            "zipCode": zip_code,
+            "nearest_resource": nearest_resource,
+            "message": "Found nearest homeless resource."
+        }
+    
+    except Exception as e:
+        return {"sessionId": session_id, "error": str(e)}
+
+
 @router.post("/find_restroom")
 async def find_restroom(req: LocationRequest):
     session_id = str(uuid.uuid4())  # Generate fresh session UUID
@@ -189,6 +218,12 @@ async def get_healthcare_facilities(
     
     except Exception as e:
         return {"error": str(e)}
+
+
+
+
+
+
 
 @router.get("/")
 async def root():
