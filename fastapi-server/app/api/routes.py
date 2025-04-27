@@ -1,3 +1,4 @@
+import base64
 import uuid
 from typing import Any, Dict, List
 
@@ -9,7 +10,7 @@ from app.models.schemas import (
     OrchestrationRequest,
     Shelter,
 )
-from app.services.gemini import Workflow_Prompt, determine_workflow, get_general_gemini_response
+from app.services.gemini import Workflow_Prompt, determine_workflow, get_general_gemini_response, send_vision_prompt
 from app.services.medical import get_medical_care_locations
 from app.services.pharmacy import get_easyvax_locations
 from app.services.restroom import get_restroom_data
@@ -18,14 +19,27 @@ from app.utils.geo import get_zip_from_lat_long, haversine
 
 router = APIRouter(prefix="/api", tags=["api"])
 
-async def handle_physical_injury(latitude: float, longitude: float) -> Dict[str, Any]:
-    """Handle physical injury workflow"""
+async def handle_physical_injury(user_prompt: str, image_surroundings: str) -> str:
+    """Handle internal medical problem workflow"""
     session_id = str(uuid.uuid4())
-    return {
-        "sessionId": session_id,
-        "message": "stub for physical injury",
-        "location": {"latitude": latitude, "longitude": longitude}
-    }
+
+    full_prompt = f"""
+    You are to help homeless people get healthcare support. The current user has a physical medical issue. See the photo. 
+    Help them solve it. Keep response under 100 tokens! and no formatting, lists, of parenthesis. response as if you're talking.
+    
+    User prompt: {user_prompt}
+    """ 
+
+    image_bytes = base64.b64decode(image_surroundings)
+
+    try:
+        response = await send_vision_prompt(full_prompt, image_bytes)
+        return {
+            "sessionId": session_id,
+            "response": response
+        }
+    except Exception as e:
+        return {"sessionId": session_id, "error ": str(e)}
 
 async def handle_internal_medical(user_prompt: str) -> str:
     """Handle internal medical problem workflow"""
@@ -214,7 +228,7 @@ async def orchestrate(req: OrchestrationRequest):
         
         # Route to the appropriate service based on workflow type
         if workflow_type == "A":
-            return await handle_physical_injury(req.user_prompt)
+            return await handle_physical_injury(req.user_prompt, req.image_surroundings)
         elif workflow_type == "B":
             return await handle_internal_medical(req.user_prompt)
         elif workflow_type == "C":
