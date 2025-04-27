@@ -8,7 +8,7 @@ from app.services.pharmacy import get_easyvax_locations
 from app.services.restroom import get_restroom_data
 from app.services.medical import get_medical_care_locations
 from app.utils.geo import get_zip_from_lat_long, haversine
-from app.services.lapl import get_lapl_homeless_resources_nearest
+from app.services.shelter import find_shelter
 from typing import Optional
 import base64
 from pydantic import BaseModel
@@ -115,7 +115,7 @@ async def find_pharmacy(req: LocationRequest):
     except Exception as e:
         return {"sessionId": session_id, "error": str(e)}
 
-@router.post("/find_homeless_resources")
+@router.post("/find_shelter")
 async def find_homeless_resources(req: LocationRequest):
     session_id = str(uuid.uuid4())  # Generate fresh session UUID
     try:
@@ -131,7 +131,7 @@ async def find_homeless_resources(req: LocationRequest):
         
         print(f"Using ZIP code: {zip_code} for search.")
         
-        nearest_resource = get_lapl_homeless_resources_nearest(req.latitude, req.longitude, zip_code)
+        nearest_resource = find_shelter(req.latitude, req.longitude, zip_code)
         
         return {
             "sessionId": session_id,
