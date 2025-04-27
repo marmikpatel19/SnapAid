@@ -139,6 +139,9 @@ async def handle_restroom_request(latitude: float, longitude: float) -> Dict[str
 @router.post("/find_restroom")
 async def find_restroom(req: LocationRequest):
     return await handle_restroom_request(req.latitude, req.longitude)
+@router.post("/find_healthcare_facilities")
+async def find_healthcare_facilities(req: LocationRequest):
+    return await handle_medical_center_request(req.latitude, req.longitude)
 
 async def handle_medical_center_request(latitude: float, longitude: float, limit: int = 5) -> Dict[str, Any]:
     """Handle medical center location request"""
@@ -155,18 +158,6 @@ async def handle_medical_center_request(latitude: float, longitude: float, limit
         }
     except Exception as e:
         return {"sessionId": session_id, "error": str(e)}
-
-@router.get("/get_healthcare_facilities", response_model=List[HealthcareFacility])
-async def get_healthcare_facilities(
-    lat: float = Query(..., description="Latitude of the location"),
-    lon: float = Query(..., description="Longitude of the location"),
-    limit: int = Query(10, description="Maximum number of facilities to return")
-):
-    result = await handle_medical_center_request(lat, lon, limit)
-    if "error" in result:
-        return {"error": result["error"]}
-
-    return result["facilities"]
 
 async def handle_shelter_request(latitude: float, longitude: float) -> Dict[str, Any]:
     """Handle shelter location request"""
