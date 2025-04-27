@@ -9,7 +9,7 @@ from app.models.schemas import (
     OrchestrationRequest,
     Shelter,
 )
-from app.services.gemini import determine_workflow
+from app.services.gemini import Workflow_Prompt, determine_workflow, get_general_gemini_response
 from app.services.medical import get_medical_care_locations
 from app.services.pharmacy import get_easyvax_locations
 from app.services.restroom import get_restroom_data
@@ -27,14 +27,17 @@ async def handle_physical_injury(latitude: float, longitude: float) -> Dict[str,
         "location": {"latitude": latitude, "longitude": longitude}
     }
 
-async def handle_internal_medical(latitude: float, longitude: float) -> Dict[str, Any]:
+async def handle_internal_medical(user_prompt: str) -> str:
     """Handle internal medical problem workflow"""
     session_id = str(uuid.uuid4())
-    return {
-        "sessionId": session_id,
-        "message": "stub for non-physical concern",
-        "location": {"latitude": latitude, "longitude": longitude}
-    }
+    try:
+        response = await get_general_gemini_response(user_prompt, Workflow_Prompt.NONPHYSICAL)
+        return {
+            "sessionId": session_id,
+            "response": response
+        }
+    except Exception as e:
+        return {"sessionId": session_id, "error ": str(e)}
 
 async def handle_pharmacy_request(latitude: float, longitude: float) -> Dict[str, Any]:
     """Handle pharmacy location request"""
@@ -220,9 +223,9 @@ async def orchestrate(req: OrchestrationRequest):
         
         # Route to the appropriate service based on workflow type
         if workflow_type == "A":
-            return await handle_physical_injury(req.latitude, req.longitude)
+            return await handle_physical_injury(req.user_prompt)
         elif workflow_type == "B":
-            return await handle_internal_medical(req.latitude, req.longitude)
+            return await handle_internal_medical(req.user_prompt)
         elif workflow_type == "C":
             return await handle_shelter_request(req.latitude, req.longitude)
         elif workflow_type == "D":
