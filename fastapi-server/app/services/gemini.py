@@ -157,3 +157,23 @@ async def send_vision_prompt(prompt: str, image_bytes: bytes, mime_type: str = "
     except Exception as e:
         print(f"Unexpected error: {str(e)}")
         return {"error": f"Unexpected error: {str(e)}"}
+
+async def web_search(user_prompt: str, latitude: float, longitude: float) -> str:
+    """
+    Use Gemini's web search capabilities to find physical resources near the user's location.
+    """
+    model = genai.GenerativeModel("gemini-2.0-flash-001")
+ 
+    prompt = f"""
+    You are helping a homeless person find physical resources they need. 
+    The user is located at coordinates: {latitude}, {longitude}
+    
+    User request: {user_prompt}
+    
+    Please provide information about where they can find this resource nearby.
+    Keep the response under 100 tokens and write as if you're talking directly to them.
+    """
+
+    response = await model.generate_content_async(prompt)
+    
+    return response.text.strip()
