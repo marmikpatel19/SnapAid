@@ -42,7 +42,7 @@ from app.services.gemini import send_vision_prompt
 
 @router.post("/vision", response_model=VisionResponseModel)
 async def process_vision_request(
-    prompt: str = Form(..., description="User text prompt"),
+    prompt: str = 'For the health query I will say, Generate a realistic 3–4 line summary tailored for someone experiencing homelessness. Guidelines: - Use simple, practical, and reality-based advice. - Ground responses in common web search results, not imagination. - Include a quick analysis and actionable, helpful steps. - Avoid exaggerated, unrealistic, or idealized suggestions. - Tone should be empathetic, grounded, and easy to understand.',
     image: UploadFile = File(..., description="Image of surroundings")
 ):
     session_id = str(uuid.uuid4())
