@@ -10,7 +10,7 @@ from app.models.schemas import (
     OrchestrationRequest,
     Shelter,
 )
-from app.services.gemini import Workflow_Prompt, determine_workflow, get_general_gemini_response, send_vision_prompt
+from app.services.gemini import Workflow_Prompt, determine_workflow, get_general_gemini_response, send_vision_prompt, web_search
 from app.services.medical import get_medical_care_locations
 from app.services.pharmacy import get_easyvax_locations
 from app.services.restroom import get_restroom_data
@@ -202,14 +202,18 @@ async def handle_shelter_request(latitude: float, longitude: float) -> Dict[str,
 async def find_shelter(req: LocationRequest):
     return await handle_shelter_request(req.latitude, req.longitude)
 
-async def handle_physical_resource_request(latitude: float, longitude: float) -> Dict[str, Any]:
+async def handle_physical_resource_request(latitude: float, longitude: float, user_prompt: str) -> Dict[str, Any]:
     """Handle physical resource location request"""
     session_id = str(uuid.uuid4())
-    return {
-        "sessionId": session_id,
-        "message": "Physical resource location service coming soon.",
-        "location": {"latitude": latitude, "longitude": longitude}
-    }
+    try:
+        response = await web_search(user_prompt, latitude, longitude)
+        return {
+            "sessionId": session_id,
+            "response": response,
+            "location": {"latitude": latitude, "longitude": longitude}
+        }
+    except Exception as e:
+        return {"sessionId": session_id, "error": str(e)}
 
 @router.post("/orchestrate", response_model=Dict[str, Any])
 async def orchestrate(req: OrchestrationRequest):
@@ -240,7 +244,7 @@ async def orchestrate(req: OrchestrationRequest):
         elif workflow_type == "F":
             return await handle_restroom_request(req.latitude, req.longitude)
         elif workflow_type == "G":
-            return await handle_physical_resource_request(req.latitude, req.longitude)
+            return await handle_physical_resource_request(req.latitude, req.longitude, req.user_prompt)
         else:
             raise ValueError(f"Unknown workflow type: {workflow_type}")
             
