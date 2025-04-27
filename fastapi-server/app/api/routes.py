@@ -37,13 +37,8 @@ class VisionResponseModel(BaseModel):
     response: str
     full_response: Optional[dict] = None
 
-import os
 
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
-if not GEMINI_API_KEY:
-    print("WARNING: GEMINI_API_KEY environment variable is not set")
-    
-GEMINI_VISION_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro-preview-03-25:generateContent"
+from app.services.gemini import send_vision_prompt
 
 @router.post("/vision", response_model=VisionResponseModel)
 async def process_vision_request(
@@ -51,104 +46,26 @@ async def process_vision_request(
     image: UploadFile = File(..., description="Image of surroundings")
 ):
     session_id = str(uuid.uuid4())
-    
     try:
-        # Read and encode image
         image_content = await image.read()
         mime_type = image.content_type or "image/jpeg"
-        base64_image = base64.b64encode(image_content).decode("utf-8")
         
-        # Log key information for debugging
-        print(f"Session ID: {session_id}")
-        print(f"Image size: {len(image_content)} bytes")
-        print(f"MIME type: {mime_type}")
-        print(f"Prompt length: {len(prompt)} characters")
-        
-        # Prepare request payload for Gemini
-        payload = {
-            "contents": [
-                {
-                    "role": "user",
-                    "parts": [
-                        {"text": prompt},
-                        {
-                            "inline_data": {
-                                "mime_type": mime_type,
-                                "data": base64_image
-                            }
-                        }
-                    ]
-                }
-            ],
-            "generation_config": {
-                "temperature": 0.4,
-                "maxOutputTokens": 1024
-            }
-        }
-        
-        # Set up API request headers
-        if not GEMINI_API_KEY:
-            raise ValueError("GEMINI_API_KEY environment variable is not set")
-            
-        headers = {
-            "Content-Type": "application/json",
-            "x-goog-api-key": GEMINI_API_KEY
-        }
-        
-        # Make request to Gemini API
-        print(f"Making request to Gemini API: {GEMINI_VISION_API_URL}")
-        async with httpx.AsyncClient() as client:
-            try:
-                response = await client.post(
-                    GEMINI_VISION_API_URL,
-                    json=payload,
-                    headers=headers,
-                    timeout=30.0
-                )
-                
-                print(f"API Response status: {response.status_code}")
-                
-                if response.status_code != 200:
-                    error_message = f"Gemini API error: Status {response.status_code}, Response: {response.text}"
-                    print(error_message)
-                    raise HTTPException(
-                        status_code=response.status_code,
-                        detail=error_message
-                    )
-                
-                response_data = response.json()
-                
-                # Extract the text response
-                text_response = ""
-                if (response_data.get("candidates") 
-                    and len(response_data["candidates"]) > 0 
-                    and response_data["candidates"][0].get("content") 
-                    and response_data["candidates"][0]["content"].get("parts")
-                    and len(response_data["candidates"][0]["content"]["parts"]) > 0):
-                    text_response = response_data["candidates"][0]["content"]["parts"][0].get("text", "")
-                else:
-                    print("Warning: Unexpected response structure from Gemini API")
-                    print(f"Response data: {json.dumps(response_data, indent=2)}")
-                
-                return VisionResponseModel(
-                    sessionId=session_id,
-                    response=text_response,
-                    full_response=response_data
-                )
-            except httpx.RequestError as exc:
-                error_message = f"HTTP Request error: {str(exc)}"
-                print(error_message)
-                raise HTTPException(status_code=500, detail=error_message)
-            
+        result = await send_vision_prompt(prompt, image_content, mime_type)
+
+        if "error" in result:
+            raise HTTPException(status_code=500, detail=result["error"])
+
+        return VisionResponseModel(
+            sessionId=result["sessionId"],
+            response=result["response"],
+            full_response=result["full_response"]
+        )
+
     except Exception as e:
         import traceback
         error_traceback = traceback.format_exc()
-        error_message = f"Error processing vision request: {str(e)}\n\nTraceback: {error_traceback}"
-        print(error_message)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error processing vision request: {str(e)}"
-        )
+        print(f"Error processing vision request: {str(e)}\n{error_traceback}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/find_pharmacy")
