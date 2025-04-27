@@ -1,35 +1,44 @@
-from typing import List
 import uuid
+from typing import Any, Dict, List
 
 from fastapi import APIRouter, Depends, Query
 
-from app.models.schemas import HealthcareFacility, LocationRequest
+from app.models.schemas import HealthcareFacility, LocationRequest, Shelter, OrchestrationRequest
+from app.services.gemini import determine_workflow
+from app.services.medical import get_medical_care_locations
 from app.services.pharmacy import get_easyvax_locations
 from app.services.restroom import get_restroom_data
-from app.services.medical import get_medical_care_locations
+from app.services.shelter import get_shelter_data
 from app.utils.geo import get_zip_from_lat_long, haversine
-from app.services.gemini import determine_workflow
 
 router = APIRouter(prefix="/api", tags=["api"])
 
-@router.post("/find_pharmacy")
-async def find_pharmacy(req: LocationRequest):
-    session_id = str(uuid.uuid4())  # Generate fresh session UUID
+async def handle_physical_injury(latitude: float, longitude: float) -> Dict[str, Any]:
+    """Handle physical injury workflow"""
+    session_id = str(uuid.uuid4())
+    return {
+        "sessionId": session_id,
+        "message": "stub for physical injury",
+        "location": {"latitude": latitude, "longitude": longitude}
+    }
+
+async def handle_internal_medical(latitude: float, longitude: float) -> Dict[str, Any]:
+    """Handle internal medical problem workflow"""
+    session_id = str(uuid.uuid4())
+    return {
+        "sessionId": session_id,
+        "message": "stub for non-physical concern",
+        "location": {"latitude": latitude, "longitude": longitude}
+    }
+
+async def handle_pharmacy_request(latitude: float, longitude: float) -> Dict[str, Any]:
+    """Handle pharmacy location request"""
+    session_id = str(uuid.uuid4())
     try:
-        print(f"Received request to find pharmacy for session {session_id}")
-        print(f"Request details: {req}")
-        if not req.latitude or not req.longitude:
-            return {"sessionId": session_id, "error": "Latitude and longitude are required."}
-        print(f"Latitude: {req.latitude}, Longitude: {req.longitude}")
-        # Convert latitude and longitude to zip code
-        print("Converting latitude and longitude to zip code...")
-        print(f"Latitude: {req.latitude}, Longitude: {req.longitude}")
-        print(f"Session ID: {session_id}")
-        zip_code = get_zip_from_lat_long(req.latitude, req.longitude)
+        zip_code = get_zip_from_lat_long(latitude, longitude)
         locations = get_easyvax_locations(zip_code, session_id)
         
         for loc in locations:
-            # Check if the location has appointments available      
             if loc.get('appointments'):
                 has_appointments = any(day['times'] for day in loc['appointments'])
                 if has_appointments:
@@ -59,12 +68,16 @@ async def find_pharmacy(req: LocationRequest):
     except Exception as e:
         return {"sessionId": session_id, "error": str(e)}
 
-@router.post("/find_restroom")
-async def find_restroom(req: LocationRequest):
-    session_id = str(uuid.uuid4())  # Generate fresh session UUID
+@router.post("/find_pharmacy")
+async def find_pharmacy(req: LocationRequest):
+    return await handle_pharmacy_request(req.latitude, req.longitude)
+
+async def handle_restroom_request(latitude: float, longitude: float) -> Dict[str, Any]:
+    """Handle restroom location request"""
+    session_id = str(uuid.uuid4())
     try:
-        user_lat = req.latitude
-        user_lon = req.longitude
+        user_lat = latitude
+        user_lon = longitude
         
         restrooms = get_restroom_data()
 
@@ -74,20 +87,17 @@ async def find_restroom(req: LocationRequest):
         for restroom in restrooms:
             geom = restroom.get('the_geom')
             if geom and 'coordinates' in geom:
-                # Get counts and safely convert to integers
                 try:
                     toilets = int(restroom.get('toilets', 0) or 0)
                     urinals = int(restroom.get('urinals', 0) or 0)
                     faucets = int(restroom.get('faucets', 0) or 0)
                 except (ValueError, TypeError):
-                    # If values are not numbers, treat them as 0
                     toilets = urinals = faucets = 0
 
-                # Skip restroom if all are zero
                 if toilets == 0 and urinals == 0 and faucets == 0:
                     continue
 
-                lon, lat = geom['coordinates']  # GeoJSON format: [longitude, latitude]
+                lon, lat = geom['coordinates']
                 distance = haversine(user_lon, user_lat, lon, lat)
 
                 if distance < min_distance:
@@ -116,38 +126,52 @@ async def find_restroom(req: LocationRequest):
     except Exception as e:
         return {"sessionId": session_id, "error": str(e)}
 
+@router.post("/find_restroom")
+async def find_restroom(req: LocationRequest):
+    return await handle_restroom_request(req.latitude, req.longitude)
 
-@router.get("/healthcare-facilities", response_model=List[HealthcareFacility])
+async def handle_medical_center_request(latitude: float, longitude: float, limit: int = 5) -> Dict[str, Any]:
+    """Handle medical center location request"""
+    session_id = str(uuid.uuid4())
+    try:
+        facilities = get_medical_care_locations(latitude, longitude, limit)
+        
+        if isinstance(facilities, dict) and "error" in facilities:
+            return {"sessionId": session_id, "error": facilities["error"]}
+        
+        return {
+            "sessionId": session_id,
+            "facilities": facilities
+        }
+    except Exception as e:
+        return {"sessionId": session_id, "error": str(e)}
+
+@router.get("/get_healthcare_facilities", response_model=List[HealthcareFacility])
 async def get_healthcare_facilities(
     lat: float = Query(..., description="Latitude of the location"),
     lon: float = Query(..., description="Longitude of the location"),
     limit: int = Query(10, description="Maximum number of facilities to return")
 ):
-    facilities = get_medical_care_locations(lat, lon, limit)
-    
-    if isinstance(facilities, dict) and "error" in facilities:
-        return {"error": facilities["error"]}
-    
-    # Convert to HealthcareFacility objects
-    return [HealthcareFacility(name=f["name"], type=f["type"], distance=f["distance"]) for f in facilities]
+    result = await handle_medical_center_request(lat, lon, limit)
+    if "error" in result:
+        return {"error": result["error"]}
+    return result["facilities"]
 
-@router.post("/find_shelter")
-async def find_shelter(req: LocationRequest):
-    session_id = str(uuid.uuid4())  # Generate fresh session UUID
+async def handle_shelter_request(latitude: float, longitude: float) -> Dict[str, Any]:
+    """Handle shelter location request"""
+    session_id = str(uuid.uuid4())
     try:
-        user_lat = req.latitude
-        user_lon = req.longitude
+        user_lat = latitude
+        user_lon = longitude
         
         shelters = get_shelter_data()
 
         nearest_shelters = []
         for shelter in shelters:
-            # Check if shelter has location data
             if shelter.get('latitude') and shelter.get('longitude'):
                 shelter_lat = float(shelter.get('latitude'))
                 shelter_lon = float(shelter.get('longitude'))
                 
-                # Calculate distance using haversine formula
                 distance = haversine(user_lon, user_lat, shelter_lon, shelter_lat)
                 
                 shelter_info = {
@@ -163,10 +187,8 @@ async def find_shelter(req: LocationRequest):
                 
                 nearest_shelters.append(shelter_info)
         
-        # Sort shelters by distance
         nearest_shelters.sort(key=lambda x: x['distance_miles'])
         
-        # Return top 5 nearest shelters
         if nearest_shelters:
             return {
                 "sessionId": session_id,
@@ -181,39 +203,29 @@ async def find_shelter(req: LocationRequest):
     except Exception as e:
         return {"sessionId": session_id, "error": str(e)}
 
+@router.post("/find_shelter")
+async def find_shelter(req: LocationRequest):
+    return await handle_shelter_request(req.latitude, req.longitude)
+
 @router.get("/shelters", response_model=List[Shelter])
 async def get_shelters(
     lat: float = Query(..., description="Latitude of the location"),
     lon: float = Query(..., description="Longitude of the location"),
     limit: int = Query(5, description="Maximum number of shelters to return")
 ):
-    try:
-        shelters_data = get_shelter_data()
-        
-        shelter_list = []
-        for shelter in shelters_data:
-            if shelter.get('latitude') and shelter.get('longitude'):
-                shelter_lat = float(shelter.get('latitude'))
-                shelter_lon = float(shelter.get('longitude'))
-                
-                # Calculate distance
-                distance = haversine(lon, lat, shelter_lon, shelter_lat)
-                
-                shelter_list.append(Shelter(
-                    name=shelter.get('shelter_name', 'Unknown Shelter'),
-                    address=shelter.get('address', 'Unknown Address'),
-                    phone=shelter.get('contact_number', 'Unknown'),
-                    distance=distance,
-                    latitude=shelter_lat,
-                    longitude=shelter_lon
-                ))
-        
-        # Sort by distance and limit results
-        shelter_list.sort(key=lambda x: x.distance)
-        return shelter_list[:limit]
-        
-    except Exception as e:
-        return {"error": f"Failed to fetch shelters: {str(e)}"}
+    result = await handle_shelter_request(lat, lon)
+    if "error" in result:
+        return {"error": result["error"]}
+    return result["nearestShelters"][:limit]
+
+async def handle_physical_resource_request(latitude: float, longitude: float) -> Dict[str, Any]:
+    """Handle physical resource location request"""
+    session_id = str(uuid.uuid4())
+    return {
+        "sessionId": session_id,
+        "message": "Physical resource location service coming soon.",
+        "location": {"latitude": latitude, "longitude": longitude}
+    }
 
 @router.get("/")
 async def root():
@@ -230,54 +242,27 @@ async def orchestrate(req: OrchestrationRequest):
     Returns:
         Dictionary with response from the most appropriate service
     """
-    session_id = str(uuid.uuid4())
-    
     try:
         # Determine the workflow using Gemini
         workflow_type = await determine_workflow(req.user_prompt)
         
-        # Create location request for the appropriate service
-        location_req = LocationRequest(
-            latitude=req.latitude,
-            longitude=req.longitude
-        )
-        
         # Route to the appropriate service based on workflow type
         if workflow_type == "A":
-            print("stub for physical injury")
-            # Physical injury - route to image processing
-            return;
+            return await handle_physical_injury(req.latitude, req.longitude)
         elif workflow_type == "B":
-            # Internal medical problem - route conversation
-            print("stub for non-physical concern")
-            return;
+            return await handle_internal_medical(req.latitude, req.longitude)
         elif workflow_type == "C":
-            # Shelter locator
-            return await find_shelter(location_req)
+            return await handle_shelter_request(req.latitude, req.longitude)
         elif workflow_type == "D":
-            # Pharmacy locator
-            return await find_pharmacy(location_req)
+            return await handle_pharmacy_request(req.latitude, req.longitude)
         elif workflow_type == "E":
-            # Medical center locator
-            return await get_healthcare_facilities(
-                lat=req.latitude,
-                lon=req.longitude,
-                limit=5
-            )
+            return await handle_medical_center_request(req.latitude, req.longitude)
         elif workflow_type == "F":
-            # Washroom locator
-            return await find_restroom(location_req)
+            return await handle_restroom_request(req.latitude, req.longitude)
         elif workflow_type == "G":
-            # Physical resource locator - for now, return a message
-            return {
-                "sessionId": session_id,
-                "message": "Physical resource location service coming soon."
-            }
+            return await handle_physical_resource_request(req.latitude, req.longitude)
         else:
             raise ValueError(f"Unknown workflow type: {workflow_type}")
             
     except Exception as e:
-        return {
-            "sessionId": session_id,
-            "error": str(e)
-        } 
+        return {"sessionId": str(uuid.uuid4()), "error": str(e)} 
