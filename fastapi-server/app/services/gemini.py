@@ -62,7 +62,7 @@ async def determine_workflow(user_prompt: str) -> WorkflowType:
     
     return workflow_type 
 
-async def get_general_gemini_response(user_prompt: str, workflow_prompt :Workflow_Prompt) -> str:
+async def get_general_gemini_response(user_prompt: str, workflow_prompt: Workflow_Prompt) -> str:
     model = genai.GenerativeModel("gemini-2.0-flash-001",)
 
     prompt = f"""
