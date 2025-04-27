@@ -3,6 +3,7 @@
 // @input Component.Image image
 // @input Component.Script ttsComponent {"hint":"Attach the TextToSpeechOpenAI Component"}
 // @input SceneObject interactableObject {"hint":"Drag the SceneObject that has the Interactable component"}
+// @input Component.Text LLM_analyse {"hint":"Text component to display the full response"}
 
 const apiKey = "Insert your Open AI Key";
 
@@ -64,6 +65,11 @@ async function handleTriggerEnd(eventData) {
 
   try {
     isProcessing = true;
+    
+    // Show processing message in LLM_analyse
+    if (script.LLM_analyse) {
+      script.LLM_analyse.text = "Processing your request...";
+    }
 
     // Access the texture from the image component
     const texture = script.image.mainPass.baseTex;
@@ -111,7 +117,12 @@ async function handleTriggerEnd(eventData) {
     if (response.status === 200) {
       print("step 1");
       let responseData = await response.json();
-      script.textOutput.text = responseData.choices[0].message.content;
+      
+      // Display response in LLM_analyse instead of textOutput
+      if (script.LLM_analyse) {
+        script.LLM_analyse.text = responseData.choices[0].message.content;
+      }
+      
       print(responseData.choices[0].message.content);
       print("step 2");
       // Call TTS to generate and play speech from the response
@@ -123,10 +134,16 @@ async function handleTriggerEnd(eventData) {
       }
     } else {
       print("Failure: response not successful");
+      if (script.LLM_analyse) {
+        script.LLM_analyse.text = "Error: API request failed";
+      }
     }
   } catch (error) {
     print("step 4 error");
     print("Error: " + error);
+    if (script.LLM_analyse) {
+      script.LLM_analyse.text = "Error: " + error;
+    }
   } finally {
     isProcessing = false;
   }
