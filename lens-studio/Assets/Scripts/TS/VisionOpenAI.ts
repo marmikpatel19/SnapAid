@@ -63,12 +63,14 @@ export class VisionOpenAI extends BaseScriptComponent {
       print("Initializing location service...");
       this.locationService = GeoLocation.createLocationService();
       
-      // Set accuracy to Navigation for best results
-      this.locationService.accuracy = GeoLocationAccuracy.Navigation;
+      // Try maximum accuracy
+      this.locationService.accuracy = GeoLocationAccuracy.Navigation; // Most accurate
       
       // Start location updates immediately
       this.updateLocationEvent.reset(0.0);
       print("Location service initialized successfully");
+
+      // Remove invalid permission check
     } catch (error) {
       print("Error initializing location service: " + error);
     }
@@ -81,11 +83,17 @@ export class VisionOpenAI extends BaseScriptComponent {
       return;
     }
     
+    //created vision query
     this.locationService.getCurrentPosition(
       (geoPosition) => {
         this.latitude = geoPosition.latitude;
         this.longitude = geoPosition.longitude;
+        
+        // Enhanced location debugging
         print(`Location updated - Lat: ${this.latitude.toFixed(6)}, Long: ${this.longitude.toFixed(6)}`);
+        print(`Location source: ${geoPosition.locationSource}`); // Will show if SIMULATED
+        print(`Location timestamp: ${geoPosition.timestamp}`);
+        print(`Location accuracy: ${geoPosition.horizontalAccuracy}m`);
       },
       (error) => {
         print("Error getting location: " + error);
@@ -93,7 +101,7 @@ export class VisionOpenAI extends BaseScriptComponent {
     );
     
     // Schedule next update in 1 second
-    this.updateLocationEvent.reset(1.0);
+    this.updateLocationEvent.reset(20.0);
   }
 
   // Method to ping the local endpoint
