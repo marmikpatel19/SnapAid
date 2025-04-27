@@ -185,17 +185,6 @@ async def handle_shelter_request(latitude: float, longitude: float) -> Dict[str,
 async def find_shelter(req: LocationRequest):
     return await handle_shelter_request(req.latitude, req.longitude)
 
-@router.get("/shelters", response_model=List[Shelter])
-async def get_shelters(
-    lat: float = Query(..., description="Latitude of the location"),
-    lon: float = Query(..., description="Longitude of the location"),
-    limit: int = Query(5, description="Maximum number of shelters to return")
-):
-    result = await handle_shelter_request(lat, lon)
-    if "error" in result:
-        return {"error": result["error"]}
-    return result["nearestShelters"][:limit]
-
 async def handle_physical_resource_request(latitude: float, longitude: float) -> Dict[str, Any]:
     """Handle physical resource location request"""
     session_id = str(uuid.uuid4())
@@ -204,16 +193,6 @@ async def handle_physical_resource_request(latitude: float, longitude: float) ->
         "message": "Physical resource location service coming soon.",
         "location": {"latitude": latitude, "longitude": longitude}
     }
-
-
-
-
-
-
-
-@router.get("/")
-async def root():
-    return {"message": "Welcome to the FastAPI server!"}
 
 @router.post("/orchestrate", response_model=Dict[str, Any])
 async def orchestrate(req: OrchestrationRequest):
@@ -250,3 +229,7 @@ async def orchestrate(req: OrchestrationRequest):
             
     except Exception as e:
         return {"sessionId": str(uuid.uuid4()), "error": str(e)} 
+    
+@router.get("/")
+async def root():
+    return {"message": "Welcome to the FastAPI server!"}
