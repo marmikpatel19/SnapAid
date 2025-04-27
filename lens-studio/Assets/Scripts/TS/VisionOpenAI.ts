@@ -14,17 +14,27 @@ export class VisionOpenAI extends BaseScriptComponent {
   @input interactable: Interactable;
   @input ttsComponent: TextToSpeechOpenAI;
   @input LLM_analyse: Text;
+  
+  // Chat history display
+  @input chatHistoryText: Text; // Reference to popup1 text element
+  @input maxHistoryLength: number = 10; // Maximum number of conversation pairs to store
+  
+  // Maximum characters per line for proper text wrapping
+  @input maxCharsPerLine: number = 100;
 
   // Location properties
   latitude: number;
   longitude: number;
   private locationService: LocationService;
   private updateLocationEvent: DelayedCallbackEvent;
+  
+  // Chat history storage
+  private chatHistory: string[] = [];
 
   apiKey: string = "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";
   geminiApiKey: string = "AIzaSyC548LX0EHEDZt-Gr_nCAI8m1zrKonF3gk";
   geminiApiEndpoint: string = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
-  python_ngrok_backend: string = "https://fe4e-2600-387-15-1115-00-b.ngrok-free.app";
+  python_ngrok_backend: string = "https://5311-164-67-70-232.ngrok-free.app";
 
   // Remote service module for fetching data
   private remoteServiceModule: RemoteServiceModule = require("LensStudio:RemoteServiceModule");
@@ -55,6 +65,81 @@ export class VisionOpenAI extends BaseScriptComponent {
     
     // Initialize location service
     this.initLocationService();
+    
+    // Initialize chat history display
+    this.updateChatHistoryDisplay();
+  }
+
+  // Utility function to make text wrap within a textbox
+  makeTextWrappable(text: string): string {
+    if (!text) return "";
+    
+    // Split by existing newlines first
+    const paragraphs = text.split("\n");
+    let result = [];
+    
+    for (const paragraph of paragraphs) {
+      if (paragraph.length <= this.maxCharsPerLine) {
+        result.push(paragraph);
+        continue;
+      }
+      
+      // Break long paragraphs into wrapped lines
+      let remainingText = paragraph;
+      while (remainingText.length > 0) {
+        // If remaining text is shorter than max length, just add it
+        if (remainingText.length <= this.maxCharsPerLine) {
+          result.push(remainingText);
+          break;
+        }
+        
+        // Find the last space within the max line length
+        let cutPoint = remainingText.lastIndexOf(" ", this.maxCharsPerLine);
+        if (cutPoint === -1 || cutPoint === 0) {
+          // No appropriate space found, force cut at max length
+          cutPoint = this.maxCharsPerLine;
+        }
+        
+        result.push(remainingText.substring(0, cutPoint));
+        remainingText = remainingText.substring(cutPoint + 1); // +1 to skip the space
+      }
+    }
+    
+    return result.join("\n");
+  }
+  
+  // Add a new conversation to the chat history
+  addToHistory(userQuery: string, response: string) {
+    // Create a formatted conversation entry
+    const historyEntry = `User: ${userQuery}\nSnapAid: ${response}\n`;
+    
+    // Add to the history array
+    this.chatHistory.push(historyEntry);
+    
+    // If we exceed the maximum history length, remove the oldest entries
+    if (this.chatHistory.length > this.maxHistoryLength) {
+      this.chatHistory = this.chatHistory.slice(this.chatHistory.length - this.maxHistoryLength);
+    }
+    
+    // Update the history display
+    this.updateChatHistoryDisplay();
+  }
+  
+  // Update the chat history display in the popup1 text element
+  updateChatHistoryDisplay() {
+    if (!this.chatHistoryText) {
+      print("Chat history text element not assigned");
+      return;
+    }
+    
+    // Join all history entries and make them wrappable
+    const fullHistory = this.chatHistory.join("\n");
+    this.chatHistoryText.text = this.makeTextWrappable(fullHistory);
+  }
+  
+  // Get the full chat history as a single string (for including in prompts)
+  getChatHistoryString(): string {
+    return this.chatHistory.join("\n");
   }
 
   // Initialize location service
@@ -142,14 +227,17 @@ export class VisionOpenAI extends BaseScriptComponent {
       print("Text input is missing");
       return;
     }
+    
+    // Save the user's query for adding to history later
+    const userQuery = this.textInput.text;
   
     try {
       this.isProcessing = true;
       
       // Update UI
       if (this.LLM_analyse) {
-        const currentTime = new Date().toLocaleTimeString();
-        this.LLM_analyse.text = `🔄 Processing (${currentTime})...\n\nSteps:\n1. Preparing request ⏳\n2. Sending to backend ⏳\n3. Waiting for response ⏳\n\nPlease wait...`;
+        const processingMessage = "Hold on, conducting using your surroundings to fetch tailored responses...";
+        this.LLM_analyse.text = this.makeTextWrappable(processingMessage);
       }
   
       let base64Image = "";
@@ -167,10 +255,11 @@ export class VisionOpenAI extends BaseScriptComponent {
   
       // Prepare payload
       const orchestratePayload = {
-        user_prompt: this.textInput.text,
+        user_prompt: userQuery,
         latitude: this.latitude || 0,
         longitude: this.longitude || 0,
-        image_surroundings: base64Image
+        image_surroundings: base64Image,
+        chat_history: this.getChatHistoryString() // Include chat history in the request
       };
   
       const fullUrl = `${this.python_ngrok_backend}/api/orchestrate`;
@@ -189,35 +278,71 @@ export class VisionOpenAI extends BaseScriptComponent {
       let response = await this.remoteServiceModule.fetch(request);
       
       if (response.status === 200) {
-        let responseData = await response.json();
-  
-        let responseText = typeof responseData === "string" ? responseData : JSON.stringify(responseData);
-  
-        // Set output
-        this.textOutput.text = responseText;
-        print("Response from orchestrate: " + responseText);
-  
-        // Update analysis field
-        if (this.LLM_analyse) {
-          this.LLM_analyse.text = `✅ Response Received\n\n${responseText}`;
+        let responseData;
+        
+        try {
+          // Parse the JSON response first
+          responseData = await response.json();
+          print("Parsed JSON response successfully");
+          
+          // Check if parsed responseData has a 'response' property
+          if (responseData && typeof responseData === 'object' && responseData.response !== undefined) {
+            print("Found 'response' property in parsed JSON");
+            let responseText = responseData.response;
+            
+            // Set output with proper text wrapping
+            this.textOutput.text = this.makeTextWrappable(responseText);
+            print("Response from orchestrate: " + responseText);
+            
+            // Add this conversation to the history
+            this.addToHistory(userQuery, responseText);
+          } else {
+            // Use the entire responseData object
+            let responseText = typeof responseData === "string" ? responseData : JSON.stringify(responseData);
+            this.textOutput.text = this.makeTextWrappable(responseText);
+            print("Response from orchestrate: " + responseText);
+            
+            // Add this conversation to the history
+            this.addToHistory(userQuery, responseText);
+          }
+        } catch (jsonError) {
+          print("Error parsing JSON: " + jsonError);
+          let responseText = "Error parsing response: " + jsonError;
+          this.textOutput.text = this.makeTextWrappable(responseText);
         }
-  
+
+        // Clear analysis field after response is received
+        if (this.LLM_analyse) {
+          this.LLM_analyse.text = "";
+        }
+
         // Optionally, TTS
         if (this.ttsComponent) {
-          this.ttsComponent.generateAndPlaySpeech(responseText);
+          // Use responseText if available, otherwise try to access responseData.response
+          let textToSpeak = "";
+          if (responseData && typeof responseData === 'object' && responseData.response) {
+            textToSpeak = responseData.response;
+          } else if (typeof responseData === 'string') {
+            textToSpeak = responseData;
+          } else {
+            textToSpeak = JSON.stringify(responseData);
+          }
+          this.ttsComponent.generateAndPlaySpeech(textToSpeak);
         }
   
       } else {
         print("Failure: Orchestrate API call failed with status " + response.status);
         if (this.LLM_analyse) {
-          this.LLM_analyse.text = `❌ Error (HTTP ${response.status})\n\nBackend request failed.`;
+          const errorText = `❌ Error (HTTP ${response.status})\n\nBackend request failed.`;
+          this.LLM_analyse.text = this.makeTextWrappable(errorText);
         }
       }
   
     } catch (error) {
       print("Error in handleTriggerEnd: " + error);
       if (this.LLM_analyse) {
-        this.LLM_analyse.text = `❌ Error\n\n${error}`;
+        const errorText = `❌ Error\n\n${error}`;
+        this.LLM_analyse.text = this.makeTextWrappable(errorText);
       }
     } finally {
       this.isProcessing = false;
@@ -237,6 +362,4 @@ export class VisionOpenAI extends BaseScriptComponent {
       );
     });
   }
-
-  
 }
