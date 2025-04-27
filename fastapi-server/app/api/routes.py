@@ -75,6 +75,7 @@ async def find_pharmacy(req: LocationRequest):
 async def handle_restroom_request(latitude: float, longitude: float) -> Dict[str, Any]:
     """Handle restroom location request"""
     session_id = str(uuid.uuid4())
+
     try:
         user_lat = latitude
         user_lon = longitude
@@ -155,51 +156,28 @@ async def get_healthcare_facilities(
     result = await handle_medical_center_request(lat, lon, limit)
     if "error" in result:
         return {"error": result["error"]}
+
     return result["facilities"]
 
 async def handle_shelter_request(latitude: float, longitude: float) -> Dict[str, Any]:
     """Handle shelter location request"""
-    session_id = str(uuid.uuid4())
+    session_id = str(uuid.uuid4())  # Generate fresh session UUID
     try:
-        user_lat = latitude
-        user_lon = longitude
+        if not latitude or not longitude:
+            return {"sessionId": session_id, "error": "Latitude and longitude are required."}
         
-        shelters = get_shelter_data()
-
-        nearest_shelters = []
-        for shelter in shelters:
-            if shelter.get('latitude') and shelter.get('longitude'):
-                shelter_lat = float(shelter.get('latitude'))
-                shelter_lon = float(shelter.get('longitude'))
+        print(f"Latitude: {latitude}, Longitude: {longitude}")
+        zip_code = get_zip_from_lat_long(latitude, longitude)
                 
-                distance = haversine(user_lon, user_lat, shelter_lon, shelter_lat)
-                
-                shelter_info = {
-                    "name": shelter.get('shelter_name', 'Unknown'),
-                    "address": shelter.get('address', 'Unknown'),
-                    "phone": shelter.get('contact_number', 'Unknown'),
-                    "hours": shelter.get('hours', 'Unknown'),
-                    "service_type": shelter.get('service_type', 'Unknown'),
-                    "distance_miles": round(distance, 2),
-                    "latitude": shelter_lat,
-                    "longitude": shelter_lon
-                }
-                
-                nearest_shelters.append(shelter_info)
+        nearest_resource = get_shelter_data(latitude, longitude, zip_code)
         
-        nearest_shelters.sort(key=lambda x: x['distance_miles'])
-        
-        if nearest_shelters:
-            return {
-                "sessionId": session_id,
-                "nearestShelters": nearest_shelters[:5]
-            }
-        else:
-            return {
-                "sessionId": session_id,
-                "message": "No shelters found."
-            }
-            
+        return {
+            "sessionId": session_id,
+            "zipCode": zip_code,
+            "nearest_resource": nearest_resource,
+            "message": "Found nearest homeless resource."
+        }
+    
     except Exception as e:
         return {"sessionId": session_id, "error": str(e)}
 
@@ -226,6 +204,12 @@ async def handle_physical_resource_request(latitude: float, longitude: float) ->
         "message": "Physical resource location service coming soon.",
         "location": {"latitude": latitude, "longitude": longitude}
     }
+
+
+
+
+
+
 
 @router.get("/")
 async def root():
