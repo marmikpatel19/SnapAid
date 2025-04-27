@@ -3,7 +3,12 @@ from typing import Any, Dict, List
 
 from fastapi import APIRouter, Depends, Query
 
-from app.models.schemas import HealthcareFacility, LocationRequest, Shelter, OrchestrationRequest
+from app.models.schemas import (
+    HealthcareFacility,
+    LocationRequest,
+    OrchestrationRequest,
+    Shelter,
+)
 from app.services.gemini import determine_workflow
 from app.services.medical import get_medical_care_locations
 from app.services.pharmacy import get_easyvax_locations
@@ -66,7 +71,7 @@ async def handle_pharmacy_request(latitude: float, longitude: float) -> Dict[str
         return {"sessionId": session_id, "message": "No pharmacies with available appointments found."}
     
     except Exception as e:
-        return {"sessionId": session_id, "error": str(e)}
+        return {"sessionId": session_id, "error string 1": str(e)}
 
 @router.post("/find_pharmacy")
 async def find_pharmacy(req: LocationRequest):
@@ -125,7 +130,7 @@ async def handle_restroom_request(latitude: float, longitude: float) -> Dict[str
             }
 
     except Exception as e:
-        return {"sessionId": session_id, "error": str(e)}
+        return {"sessionId": session_id, "error string 2": str(e)}
 
 @router.post("/find_restroom")
 async def find_restroom(req: LocationRequest):
@@ -138,7 +143,7 @@ async def handle_medical_center_request(latitude: float, longitude: float, limit
         facilities = get_medical_care_locations(latitude, longitude, limit)
         
         if isinstance(facilities, dict) and "error" in facilities:
-            return {"sessionId": session_id, "error": facilities["error"]}
+            return {"sessionId": session_id, "error string 3": facilities["error"]}
         
         return {
             "sessionId": session_id,
@@ -164,7 +169,7 @@ async def handle_shelter_request(latitude: float, longitude: float) -> Dict[str,
     session_id = str(uuid.uuid4())  # Generate fresh session UUID
     try:
         if not latitude or not longitude:
-            return {"sessionId": session_id, "error": "Latitude and longitude are required."}
+            return {"sessionId": session_id, "error string 4": "Latitude and longitude are required."}
         
         print(f"Latitude: {latitude}, Longitude: {longitude}")
         zip_code = get_zip_from_lat_long(latitude, longitude)
@@ -179,7 +184,7 @@ async def handle_shelter_request(latitude: float, longitude: float) -> Dict[str,
         }
     
     except Exception as e:
-        return {"sessionId": session_id, "error": str(e)}
+        return {"sessionId": session_id, "error string 5": str(e)}
 
 @router.post("/find_shelter")
 async def find_shelter(req: LocationRequest):
@@ -228,7 +233,7 @@ async def orchestrate(req: OrchestrationRequest):
             raise ValueError(f"Unknown workflow type: {workflow_type}")
             
     except Exception as e:
-        return {"sessionId": str(uuid.uuid4()), "error": str(e)} 
+        return {"sessionId": str(uuid.uuid4()), "error string 6" : str(e)} 
     
 @router.get("/")
 async def root():
