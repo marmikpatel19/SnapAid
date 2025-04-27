@@ -38,7 +38,7 @@ async def determine_workflow(user_prompt: str) -> WorkflowType:
     A: Physical injury (visible wounds, broken bones, etc.)
     B: Internal medical problem (non-physical issues like fever, pain, mental health, etc.)
     C: Resource locator - shelter
-    D: Resource locator - pharmacy
+    D: Resource locator - pharmacy (any sort of vaccines, purchasing drugs, talking to a pharmacist, etc.)
     E: Resource locator - medical center
     F: Resource locator - washroom
     G: Resource locator - physical resource (clothing, food, etc.)
