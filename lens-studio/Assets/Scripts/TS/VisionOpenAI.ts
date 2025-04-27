@@ -19,6 +19,9 @@ export class VisionOpenAI extends BaseScriptComponent {
   @input chatHistoryText: Text; // Reference to popup1 text element
   @input maxHistoryLength: number = 10; // Maximum number of conversation pairs to store
   
+  // Gemini summary
+  @input enableSummary: boolean = true; // Option to enable/disable summaries
+  
   // Maximum characters per line for proper text wrapping
   @input maxCharsPerLine: number = 100;
 
@@ -34,7 +37,7 @@ export class VisionOpenAI extends BaseScriptComponent {
   apiKey: string = "REMOVED-API-KEY";
   geminiApiKey: string = "REMOVED-GEMINI-KEY";
   geminiApiEndpoint: string = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
-  python_ngrok_backend: string = "https://5311-164-67-70-232.ngrok-free.app";
+  python_ngrok_backend: string = "https://7ec3-164-67-70-232.ngrok-free.app";
 
   // Remote service module for fetching data
   private remoteServiceModule: RemoteServiceModule = require("LensStudio:RemoteServiceModule");
@@ -140,6 +143,107 @@ export class VisionOpenAI extends BaseScriptComponent {
   // Get the full chat history as a single string (for including in prompts)
   getChatHistoryString(): string {
     return this.chatHistory.join("\n");
+  }
+  
+  // Generate summary with Gemini API and add to response
+  async generateBulletSummary(responseText: string): Promise<{fullText: string, summaryOnly: string}> {
+    if (!this.enableSummary) {
+      print("Summary generation disabled");
+      return {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+        fullText: responseText,
+        summaryOnly: ""
+      };
+    }
+    
+    try {
+      print("Generating bullet-point summary with Gemini...");
+      
+      const prompt = `List down the key points covered from this response in 3-5 concise bullet points:
+"${responseText}"
+
+Format the output as bullet points starting with • and keep each bullet very brief.`;
+      
+      const geminiPayload = {
+        contents: [
+          {
+            parts: [
+              { text: prompt }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 200
+        }
+      };
+      
+      // Add API key as query parameter
+      const geminiUrl = `${this.geminiApiEndpoint}?key=${this.geminiApiKey}`;
+      
+      const request = new Request(
+        geminiUrl,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(geminiPayload),
+        }
+      );
+      
+      const response = await this.remoteServiceModule.fetch(request);
+      
+      if (response.status === 200) {
+        const responseData = await response.json();
+        
+        // Extract the summary text from Gemini response
+        if (responseData && 
+            responseData.candidates && 
+            responseData.candidates[0] && 
+            responseData.candidates[0].content && 
+            responseData.candidates[0].content.parts && 
+            responseData.candidates[0].content.parts[0] && 
+            responseData.candidates[0].content.parts[0].text) {
+          
+          let summaryText = responseData.candidates[0].content.parts[0].text;
+          
+          // Make sure the summary text is properly formatted for display
+          // Clean up any extra whitespace and ensure proper bullet formatting
+          summaryText = summaryText.trim()
+            .replace(/\n{3,}/g, "\n\n")   // Remove excessive newlines
+            .replace(/[•*-] /g, "• ");     // Standardize bullet points
+          
+          print("Summary generated successfully: " + summaryText);
+          print("Summary length: " + summaryText.length + " characters");
+          
+          // Prepare a clean summary text that's easier to render
+          const cleanSummary = "KEY POINTS:\n\n" + summaryText;
+          
+          return {
+            fullText: `${responseText}\n\n---KEY POINTS---\n${summaryText}`,
+            summaryOnly: cleanSummary
+          };
+        } else {
+          print("Invalid Gemini response format");
+          return {
+            fullText: responseText,
+            summaryOnly: ""
+          };
+        }
+      } else {
+        print("Gemini API call failed with status " + response.status);
+        return {
+          fullText: responseText,
+          summaryOnly: ""
+        };
+      }
+    } catch (error) {
+      print("Error in generateBulletSummary: " + error);
+      return {
+        fullText: responseText,
+        summaryOnly: ""
+      };
+    }
   }
 
   // Initialize location service
@@ -279,36 +383,62 @@ export class VisionOpenAI extends BaseScriptComponent {
       
       if (response.status === 200) {
         let responseData;
+        let responseText = "";
         
         try {
           // Parse the JSON response first
           responseData = await response.json();
           print("Parsed JSON response successfully");
           
-          // Check if parsed responseData has a 'response' property
+          // Get response text from either response property or full object
           if (responseData && typeof responseData === 'object' && responseData.response !== undefined) {
             print("Found 'response' property in parsed JSON");
-            let responseText = responseData.response;
-            
-            // Set output with proper text wrapping
-            this.textOutput.text = this.makeTextWrappable(responseText);
-            print("Response from orchestrate: " + responseText);
-            
-            // Add this conversation to the history
-            this.addToHistory(userQuery, responseText);
+            responseText = responseData.response;
           } else {
-            // Use the entire responseData object
-            let responseText = typeof responseData === "string" ? responseData : JSON.stringify(responseData);
-            this.textOutput.text = this.makeTextWrappable(responseText);
-            print("Response from orchestrate: " + responseText);
+            // Use the entire responseData object as the response text
+            print("No 'response' property found, using entire JSON");
+            responseText = typeof responseData === "string" ? responseData : JSON.stringify(responseData);
+          }
+          
+          // Store original response for history
+          const originalResponse = responseText;
+          
+          // Generate summary with Gemini if enabled and append to response
+          if (this.enableSummary && responseText) {
+            const result = await this.generateBulletSummary(responseText);
             
-            // Add this conversation to the history
+            // Show ONLY the key points in textOutput with improved rendering
+            if (result.summaryOnly) {
+              // Ensure text is properly formatted for display
+              const displayText = result.summaryOnly;
+              this.textOutput.text = this.makeTextWrappable(displayText);
+              
+              // Debug log
+              print("Setting textOutput with summary, length: " + displayText.length);
+              
+              // Add to history using the summary instead of full response
+              this.addToHistory(userQuery, displayText);
+            } else {
+              // Fallback if summary generation failed
+              this.textOutput.text = this.makeTextWrappable(responseText);
+              
+              // Use original text for history when summary fails
+              this.addToHistory(userQuery, responseText);
+            }
+          } else {
+            // No summary - just show response in textOutput
+            this.textOutput.text = responseText;
+            
+            // Add to history using the original response
             this.addToHistory(userQuery, responseText);
           }
+          
+          print("Response from orchestrate: " + responseText);
+          
         } catch (jsonError) {
           print("Error parsing JSON: " + jsonError);
-          let responseText = "Error parsing response: " + jsonError;
-          this.textOutput.text = this.makeTextWrappable(responseText);
+          let errorText = "Error parsing response: " + jsonError;
+          this.textOutput.text = this.makeTextWrappable(errorText);
         }
 
         // Clear analysis field after response is received

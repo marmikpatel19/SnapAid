@@ -26,6 +26,7 @@
   CurrentVisibility: Editable
   MaxVisibility: Editable
   ScriptInputsHidden:
+    LLM_analyse: false
     image: false
     interactableObject: false
     textInput: false
@@ -43,6 +44,7 @@
       interactable: !<reference.Interactable> 00000000-0000-0000-0000-000000000000
       ttsComponent: !<reference.ScriptComponent> 00000000-0000-0000-0000-000000000000
       interactableObject: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      LLM_analyse: !<reference.Text> 00000000-0000-0000-0000-000000000000
   ScriptTypes:
     -
       {}
