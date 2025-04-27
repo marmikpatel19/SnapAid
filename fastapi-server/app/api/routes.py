@@ -15,6 +15,7 @@ from app.services.pharmacy import get_easyvax_locations
 from app.services.restroom import get_restroom_data
 from app.services.shelter import get_shelter_data
 from app.utils.geo import get_zip_from_lat_long, haversine
+from app.services.gemini import determine_workflow
 
 router = APIRouter(prefix="/api", tags=["api"])
 
@@ -202,20 +203,65 @@ async def get_shelters(
 async def root():
     return {"message": "Welcome to the FastAPI server!"}
 
-# @router.post("/orchestrate", response_model=Dict[str, Any])
-# async def orchestrate(req: OrchestrationRequest):
-#     """
-#     Orchestration endpoint that determines which service to call based on semantic similarity.
+@router.post("/orchestrate", response_model=Dict[str, Any])
+async def orchestrate(req: OrchestrationRequest):
+    """
+    Orchestration endpoint that determines which service to call based on semantic similarity.
     
-#     Args:
-#         req: Request containing user prompt, location, and optional image
+    Args:
+        req: Request containing user prompt, location, and optional image
         
-#     Returns:
-#         Dictionary with response from the most appropriate service
-#     """
-#     return await process_request(
-#         user_prompt=req.user_prompt,
-#         latitude=req.latitude,
-#         longitude=req.longitude,
-#         image_surroundings=req.image_surroundings
-#     ) 
+    Returns:
+        Dictionary with response from the most appropriate service
+    """
+    session_id = str(uuid.uuid4())
+    
+    try:
+        # Determine the workflow using Gemini
+        workflow_type = await determine_workflow(req.user_prompt)
+        
+        # Create location request for the appropriate service
+        location_req = LocationRequest(
+            latitude=req.latitude,
+            longitude=req.longitude
+        )
+        
+        # Route to the appropriate service based on workflow type
+        if workflow_type == "A":
+            print("stub for physical injury")
+            # Physical injury - route to image processing
+            return;
+        elif workflow_type == "B":
+            # Internal medical problem - route conversation
+            print("stub for non-physical concern")
+            return;
+        elif workflow_type == "C":
+            # Shelter locator
+            return await find_shelter(location_req)
+        elif workflow_type == "D":
+            # Pharmacy locator
+            return await find_pharmacy(location_req)
+        elif workflow_type == "E":
+            # Medical center locator
+            return await get_healthcare_facilities(
+                lat=req.latitude,
+                lon=req.longitude,
+                limit=5
+            )
+        elif workflow_type == "F":
+            # Washroom locator
+            return await find_restroom(location_req)
+        elif workflow_type == "G":
+            # Physical resource locator - for now, return a message
+            return {
+                "sessionId": session_id,
+                "message": "Physical resource location service coming soon."
+            }
+        else:
+            raise ValueError(f"Unknown workflow type: {workflow_type}")
+            
+    except Exception as e:
+        return {
+            "sessionId": session_id,
+            "error": str(e)
+        } 
