@@ -6,6 +6,7 @@ import uuid
 import httpx
 from google import generativeai as genai
 from dotenv import load_dotenv
+from enum import Enum
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_VISION_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro-preview-03-25:generateContent"
@@ -16,8 +17,12 @@ load_dotenv()
 # Configure Gemini
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-# Define the workflow types
 WorkflowType = Literal["A", "B", "C", "D", "E", "F", "G"]
+
+class Workflow_Prompt(Enum):
+    PHYSICAL = """ """
+    NONPHYSICAL = """You are to help homeless people get healthcare support. The current user has a non-physical medical issue. 
+    Help them solve it. Keep response under 50 tokens!! and no formatting, lists, of parenthesis. response as if you're talking."""
 
 async def determine_workflow(user_prompt: str) -> WorkflowType:
     """
@@ -56,6 +61,18 @@ async def determine_workflow(user_prompt: str) -> WorkflowType:
         raise ValueError(f"Invalid workflow type returned: {workflow_type}")
     
     return workflow_type 
+
+async def get_general_gemini_response(user_prompt: str, workflow_prompt :Workflow_Prompt) -> str:
+    model = genai.GenerativeModel("gemini-2.0-flash-001",)
+
+    prompt = f"""
+    {workflow_prompt.value} 
+    
+    User prompt: {user_prompt}
+    """ 
+    response = await model.generate_content_async(prompt)
+    
+    return response.text.strip()
 
 async def send_vision_prompt(prompt: str, image_bytes: bytes, mime_type: str = "image/jpeg"):
     """
