@@ -8,4 +8,4 @@ def get_restroom_data():
     if response.status_code == 200:
         return response.json()
     else:
-        raise Exception(f"LA Restroom API error: {response.status_code} - {response.text}") 
+        raise Exception(f"LA Restroom API error: {response.status_code} - {response.text}")

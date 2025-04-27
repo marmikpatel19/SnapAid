@@ -1,19 +1,12 @@
+from typing import List
 import uuid
-from typing import Any, Dict, List
 
-import requests
 from fastapi import APIRouter, Depends, Query
 
-from app.models.schemas import (
-    HealthcareFacility,
-    LocationRequest,
-    OrchestrationRequest,
-    Shelter,
-)
-from app.services.medical import get_medical_care_locations
+from app.models.schemas import HealthcareFacility, LocationRequest
 from app.services.pharmacy import get_easyvax_locations
 from app.services.restroom import get_restroom_data
-from app.services.shelter import get_shelter_data
+from app.services.medical import get_medical_care_locations
 from app.utils.geo import get_zip_from_lat_long, haversine
 from app.services.gemini import determine_workflow
 
@@ -23,11 +16,20 @@ router = APIRouter(prefix="/api", tags=["api"])
 async def find_pharmacy(req: LocationRequest):
     session_id = str(uuid.uuid4())  # Generate fresh session UUID
     try:
+        print(f"Received request to find pharmacy for session {session_id}")
+        print(f"Request details: {req}")
+        if not req.latitude or not req.longitude:
+            return {"sessionId": session_id, "error": "Latitude and longitude are required."}
+        print(f"Latitude: {req.latitude}, Longitude: {req.longitude}")
+        # Convert latitude and longitude to zip code
+        print("Converting latitude and longitude to zip code...")
+        print(f"Latitude: {req.latitude}, Longitude: {req.longitude}")
+        print(f"Session ID: {session_id}")
         zip_code = get_zip_from_lat_long(req.latitude, req.longitude)
-        
         locations = get_easyvax_locations(zip_code, session_id)
         
         for loc in locations:
+            # Check if the location has appointments available      
             if loc.get('appointments'):
                 has_appointments = any(day['times'] for day in loc['appointments'])
                 if has_appointments:
@@ -72,6 +74,19 @@ async def find_restroom(req: LocationRequest):
         for restroom in restrooms:
             geom = restroom.get('the_geom')
             if geom and 'coordinates' in geom:
+                # Get counts and safely convert to integers
+                try:
+                    toilets = int(restroom.get('toilets', 0) or 0)
+                    urinals = int(restroom.get('urinals', 0) or 0)
+                    faucets = int(restroom.get('faucets', 0) or 0)
+                except (ValueError, TypeError):
+                    # If values are not numbers, treat them as 0
+                    toilets = urinals = faucets = 0
+
+                # Skip restroom if all are zero
+                if toilets == 0 and urinals == 0 and faucets == 0:
+                    continue
+
                 lon, lat = geom['coordinates']  # GeoJSON format: [longitude, latitude]
                 distance = haversine(user_lon, user_lat, lon, lat)
 
@@ -80,9 +95,9 @@ async def find_restroom(req: LocationRequest):
                     closest_restroom = {
                         "facility": restroom.get('facility', 'Unknown'),
                         "gender": restroom.get('gender', 'Unknown'),
-                        "toilets": restroom.get('toilets', 'Unknown'),
-                        "urinals": restroom.get('urinals', 'Unknown'),
-                        "faucets": restroom.get('faucets', 'Unknown'),
+                        "toilets": toilets,
+                        "urinals": urinals,
+                        "faucets": faucets,
                         "location": geom,
                         "distance_miles": round(distance, 2)
                     }
@@ -100,6 +115,7 @@ async def find_restroom(req: LocationRequest):
 
     except Exception as e:
         return {"sessionId": session_id, "error": str(e)}
+
 
 @router.get("/healthcare-facilities", response_model=List[HealthcareFacility])
 async def get_healthcare_facilities(
