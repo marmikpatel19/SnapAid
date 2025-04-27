@@ -25,7 +25,7 @@ async def handle_physical_injury(user_prompt: str, image_surroundings: str) -> s
 
     full_prompt = f"""
     You are to help homeless people get healthcare support. The current user has a physical medical issue. See the photo. 
-    Help them solve it. Keep response under 50 tokens!! and no formatting, lists, of parenthesis. response as if you're talking.
+    Help them solve it. Keep response under 100 tokens! and no formatting, lists, of parenthesis. response as if you're talking.
     
     User prompt: {user_prompt}
     """ 
