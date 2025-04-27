@@ -22,7 +22,7 @@ WorkflowType = Literal["A", "B", "C", "D", "E", "F", "G"]
 class Workflow_Prompt(Enum):
     PHYSICAL = """ """
     NONPHYSICAL = """You are to help homeless people get healthcare support. The current user has a non-physical medical issue. 
-    Help them solve it. Keep response under 50 tokens!! and no formatting, lists, of parenthesis. response as if you're talking."""
+    Help them solve it. Keep response under 100 tokens! and no formatting, lists, of parenthesis. response as if you're talking."""
 
 async def determine_workflow(user_prompt: str) -> WorkflowType:
     """
